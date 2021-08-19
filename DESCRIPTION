@@ -1,0 +1,43 @@
+Package: isotonicBayes
+Title: Isotonic regression for binary outcomes using Gamma and Horseshoe-based 
+  priors
+Version: 0.0.1
+Authors@R: 
+    person(given = "Philip",
+           middle = "S",
+           family = "Boonstra",
+           role = c("aut", "cre"),
+           email = "philb@umich.edu",
+           comment = c(ORCID = "0000-0001-8545-9133"))
+Description: This package implements the isotonic regression priors developed
+  in Boonstra, Owen, and Kang (2021). 
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+LazyData: true
+Depends: 
+    R (>= 3.4.0)
+Imports:
+    dplyr (>= 1.0.0),
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    knitr,
+    methods,
+    Rdpack,
+    rlang,
+    stats,
+    tibble
+VignetteBuilder: knitr
+RdMacros: Rdpack
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1

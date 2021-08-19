@@ -17,12 +17,12 @@
 #' @importFrom dplyr %>% bind_cols mutate pull
 #' @importFrom tibble as_tibble
 #' @importFrom rlang := sym
+#' @importFrom rstan stan get_elapsed_time sampling
 #' @importFrom Rdpack reprompt
 #'
 
 bayesian_isotonic = function(data_grouped = NULL,
-                             stan_fit = NA,
-                             stan_path = NA,
+                             prior_type = "horseshoe",
                              stan_args = list(
                                local_dof_stan = 1,
                                global_dof_stan = 1,
@@ -44,32 +44,36 @@ bayesian_isotonic = function(data_grouped = NULL,
                              stan_seed = sample.int(.Machine$integer.max, 1)) {
 
   stopifnot(isTRUE("data.frame" %in% class(data_grouped)))
-  stopifnot(isTRUE(c("y","n") %in% colnames(data_grouped)))
+  stopifnot(isTRUE(all(c("y","n") %in% colnames(data_grouped))))
   stopifnot(all(pull(data_grouped,y) >= 0) &&
               all(pull(data_grouped,y) <= pull(data_grouped,n)));
 
-  curr_fit <- stan(file = stan_path,
-                   fit = stan_fit,
-                   data = c(list(n_groups_stan = nrow(data_grouped),
-                                 n_per_group_stan = as.array(pull(data_grouped,n)),
-                                 y_stan = as.array(pull(data_grouped,y)),
-                                 only_prior_stan = as.integer(sample_from_prior_only)),
-                            stan_args),
-                   warmup = n_mc_warmup,
-                   iter = n_mc_samps + n_mc_warmup,
-                   chains = mc_chains,
-                   thin = mc_thin,
-                   seed = stan_seed,
-                   verbose = F)#,
-  #control = list(stepsize = mc_stepsize,
-  #                adapt_delta = mc_adapt_delta,
-  #               max_treedepth = mc_max_treedepth));
+  if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
+    stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")
+
+  if(prior_type == "gamma" && !setequal(names(stan_args), c("alpha_shape_stan", "tiny_positive_stan")))
+    stop("The gamma prior expects that stan_args must contain all and only named elements alpha_shape_stan and tiny_positive_stan")
+
+
+  curr_fit <- sampling(object = stanmodels[[paste0("iso_",prior_type)]],
+                       data = c(list(n_groups_stan = nrow(data_grouped),
+                                     n_per_group_stan = as.array(pull(data_grouped,n)),
+                                     y_stan = as.array(pull(data_grouped,y)),
+                                     only_prior_stan = as.integer(sample_from_prior_only)),
+                                stan_args),
+                       warmup = n_mc_warmup,
+                       iter = n_mc_samps + n_mc_warmup,
+                       chains = mc_chains,
+                       thin = mc_thin,
+                       seed = stan_seed,
+                       verbose = F,
+                       refresh = 0)
 
   number_divergences = count_stan_divergences(curr_fit);
-  max_rhat = max(summary(curr_fit)$summary[,"Rhat"], na.rm = TRUE)
+  max_rhat = max(rstan::summary(curr_fit)$summary[,"Rhat"], na.rm = TRUE)
 
   if(!return_as_stan_object) {
-    chain_run_times_secs = rowSums(rstan::get_elapsed_time(curr_fit));
+    chain_run_times_secs = rowSums(get_elapsed_time(curr_fit));
     total_run_time_secs = max(chain_run_times_secs);
     foo = rstan::extract(curr_fit);
 

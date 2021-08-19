@@ -6,8 +6,7 @@
 \usage{
 bayesian_isotonic(
   data_grouped = NULL,
-  stan_fit = NA,
-  stan_path = NA,
+  prior_type = "horseshoe",
   stan_args = list(local_dof_stan = 1, global_dof_stan = 1, alpha_scale_stan = 1),
   sample_from_prior_only = F,
   conf_level = 0.5,

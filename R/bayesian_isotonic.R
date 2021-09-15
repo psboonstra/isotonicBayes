@@ -3,11 +3,32 @@
 #' @description  bayesian_isotonic
 #'
 #' @param data_grouped a tibble or data.frame with named columns y and n indicating,
-#' respectively, the number of outcomes and number of bernoulli trials. Each
+#' respectively, the number of events and number of bernoulli trials. Each
 #' row corresponds to a different category of the predictor. **The rows are assumed
-#' to be ordered properly, such that the first row corresponds to the first
+#' to be ordered such that the first row corresponds to the first
 #' category of the predictor, the second row the second category, and so forth**
 #'
+#' @param prior_type a character indicating the type of prior to use. Currently
+#' can be only "horseshoe" or "gamma"
+#'
+#' @stan_args a named list of arguments corresponding to the selected prior.
+#' If prior_type="horseshoe", then stan_args must contain the following named
+#' components: local_dof_stan (an integer giving the degrees of freedom for
+#' the local shrinkage parameter), global_dof_stan (same for the global
+#' shrinkage parameter), and alpha_scale_stan (the scale tuning parameter).
+#' If prior_type="gamma", then stan_args must contain the following named
+#' components: alpha_shape_stan (the shape tuning parameter) and tiny_positive_stan
+#' (a small number specifying the lower truncation of the gamma distribution)
+#'
+#' @sample_from_prior_only a logical that offers an easy way to sample from the
+#' prior. If TRUE, the data provided via data_grouped are ignored.
+#'
+#' @conf_level a number between 0 and 1 specifying the posterior quantiles
+#' to be calculated. The default value is 0.50, meaning that the function
+#' will by default return the 25th and 75th percentiles of the posterior
+#' distribution of each parameter
+#'
+#' @conf_level_direction a character that must be "both", "lower", or "upper"
 #'
 #' @references
 #' \insertRef{boonstra2020b}{isotonicBayes}
@@ -47,6 +68,7 @@ bayesian_isotonic = function(data_grouped = NULL,
   stopifnot(isTRUE(all(c("y","n") %in% colnames(data_grouped))))
   stopifnot(all(pull(data_grouped,y) >= 0) &&
               all(pull(data_grouped,y) <= pull(data_grouped,n)));
+  stopifnot(conf_level >= 0 && conf_level <= 1);
 
   if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
     stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")

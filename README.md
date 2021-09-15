@@ -4,7 +4,10 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of isotonicBayes is to ...
+`isotonicBayes` implements the isotonic priors developed in Boonstra, Owen, 
+and Kang (2020). The assumed context is a binary outcome the probability of which is assumed
+to be non-decreasing in a given predictor. 
+
 
 ## Installation
 
@@ -14,12 +17,10 @@ You can install the released version of isotonicBayes using
 devtools::install_github("psboonstra/isotonicBayes")
 ```
 
-## Example
 
-This is a basic example which shows you how to solve a common problem:
+## Suggested citation
 
-``` r
-library(isotonicBayes)
-## basic example code
-```
-
+Boonstra, Philip S.; Owen, Daniel R.; and Kang, Jian, "Shrinkage priors for 
+isotonic probability vectors and binary data modeling" (January 2020). 
+The University of Michigan Department of Biostatistics Working Paper Series. Working Paper 128.
+https://biostats.bepress.com/umichbiostat/paper128

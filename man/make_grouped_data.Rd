@@ -18,9 +18,6 @@ This is a helper function to turn a vector of continuous predictors x
 and corresponding vector of binary outcomes y into a data.frame of a form
 expected by the function \code{\link[=bayesian_isotonic]{bayesian_isotonic()}}
 }
-\examples{
-
-}
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}
 }

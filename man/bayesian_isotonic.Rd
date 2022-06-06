@@ -27,16 +27,62 @@ bayesian_isotonic(
 }
 \arguments{
 \item{data_grouped}{a tibble or data.frame with named columns y and n indicating,
-respectively, the number of outcomes and number of bernoulli trials. Each
+respectively, the number of events and number of bernoulli trials. Each
 row corresponds to a different category of the predictor. \strong{The rows are assumed
-to be ordered properly, such that the first row corresponds to the first
+to be ordered such that the first row corresponds to the first
 category of the predictor, the second row the second category, and so forth}}
+
+\item{prior_type}{a character indicating the type of prior to use. Currently
+can be only "horseshoe" or "gamma"}
+
+\item{stan_args}{a named list of arguments corresponding to the selected prior.
+If prior_type="horseshoe", then stan_args must contain the following named
+components: local_dof_stan (an integer giving the degrees of freedom for
+the local shrinkage parameter), global_dof_stan (same for the global
+shrinkage parameter), and alpha_scale_stan (the scale tuning parameter).
+If prior_type="gamma", then stan_args must contain the following named
+components: alpha_shape_stan (the shape tuning parameter) and tiny_positive_stan
+(a small number specifying the lower truncation of the gamma distribution)}
+
+\item{sample_from_prior_only}{a logical that offers an easy way to sample from the
+prior. If TRUE, the data provided via data_grouped are ignored.}
+
+\item{conf_level}{a number between 0 and 1 specifying the posterior quantiles
+to be calculated. The default value is 0.50, meaning that the function
+will by default return the 25th and 75th percentiles of the posterior
+distribution of each parameter}
+
+\item{conf_level_direction}{a character that must be "both", "lower", or "upper"}
+
+\item{sig_threshold}{a vector of proportions. For each proportion, the posterior
+probability that each increment exceeds that proportion will be calculated
+and returned.}
+
+\item{verbose}{a logical indicating whether to return all posterior draws
+of all parameters.}
+
+\item{n_mc_warmup}{see below}
+
+\item{n_mc_samps}{see below}
+
+\item{mc_chains}{see below}
+
+\item{mc_thin}{see below}
+
+\item{mc_stepsize}{see below}
+
+\item{mc_adapt_delta}{see below}
+
+\item{mc_max_treedepth}{All}
+
+\item{return_as_stan_object}{= F}
+
+\item{tol}{= .Machine$double.eps^0.5}
+
+\item{stan_seed}{= sample.int(.Machine$integer.max, 1)}
 }
 \description{
 bayesian_isotonic
-}
-\examples{
-
 }
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}

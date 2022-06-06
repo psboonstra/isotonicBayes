@@ -11,7 +11,7 @@
 #' @param prior_type a character indicating the type of prior to use. Currently
 #' can be only "horseshoe" or "gamma"
 #'
-#' @stan_args a named list of arguments corresponding to the selected prior.
+#' @param stan_args a named list of arguments corresponding to the selected prior.
 #' If prior_type="horseshoe", then stan_args must contain the following named
 #' components: local_dof_stan (an integer giving the degrees of freedom for
 #' the local shrinkage parameter), global_dof_stan (same for the global
@@ -20,15 +20,42 @@
 #' components: alpha_shape_stan (the shape tuning parameter) and tiny_positive_stan
 #' (a small number specifying the lower truncation of the gamma distribution)
 #'
-#' @sample_from_prior_only a logical that offers an easy way to sample from the
+#' @param sample_from_prior_only a logical that offers an easy way to sample from the
 #' prior. If TRUE, the data provided via data_grouped are ignored.
 #'
-#' @conf_level a number between 0 and 1 specifying the posterior quantiles
+#' @param conf_level a number between 0 and 1 specifying the posterior quantiles
 #' to be calculated. The default value is 0.50, meaning that the function
 #' will by default return the 25th and 75th percentiles of the posterior
 #' distribution of each parameter
 #'
-#' @conf_level_direction a character that must be "both", "lower", or "upper"
+#' @param conf_level_direction a character that must be "both", "lower", or "upper"
+#'
+#' @param sig_threshold a vector of proportions. For each proportion, the posterior
+#' probability that each increment exceeds that proportion will be calculated
+#' and returned.
+#'
+#' @param verbose a logical indicating whether to return all posterior draws
+#' of all parameters.
+#'
+#' @param n_mc_warmup see below
+#'
+#' @param n_mc_samps see below
+#'
+#' @param mc_chains see below
+#'
+#' @param mc_thin see below
+#'
+#' @param mc_stepsize see below
+#'
+#' @param mc_adapt_delta see below
+#'
+#' @param mc_max_treedepth All
+#'
+#' @param return_as_stan_object = F
+#'
+#' @param tol = .Machine$double.eps^0.5
+#'
+#' @param stan_seed = sample.int(.Machine$integer.max, 1)
 #'
 #' @references
 #' \insertRef{boonstra2020b}{isotonicBayes}
@@ -69,12 +96,14 @@ bayesian_isotonic = function(data_grouped = NULL,
   stopifnot(all(pull(data_grouped,y) >= 0) &&
               all(pull(data_grouped,y) <= pull(data_grouped,n)));
   stopifnot(conf_level >= 0 && conf_level <= 1);
+  stopifnot(priot_type %in% c("horseshoe", "gamma"))
 
   if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
     stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")
 
   if(prior_type == "gamma" && !setequal(names(stan_args), c("alpha_shape_stan", "tiny_positive_stan")))
     stop("The gamma prior expects that stan_args must contain all and only named elements alpha_shape_stan and tiny_positive_stan")
+
 
 
   curr_fit <- sampling(object = stanmodels[[paste0("iso_",prior_type)]],

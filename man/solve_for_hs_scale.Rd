@@ -22,9 +22,6 @@ solve_for_hs_scale(
 \description{
 solve_hs_scale
 }
-\examples{
-
-}
 \references{
 \insertRef{boonstra2020}{isotonicBayes}
 }

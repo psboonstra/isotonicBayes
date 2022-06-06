@@ -16,9 +16,6 @@ an integer giving the total number of divergences across all chains
 This is a helper function to count the number of divergences
 for an object of class \code{\link[rstan:stanfit-class]{rstan::stanfit()}}
 }
-\examples{
-
-}
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}
 }

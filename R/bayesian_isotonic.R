@@ -62,6 +62,12 @@
 #'
 #' @examples
 #'
+#' set.seed(1)
+#' fake_data <- make_grouped_data(runif(100), rbinom(100, 1, 0.5))
+#' bayesian_isotonic(data_grouped = fake_data)
+#'
+#' @export
+#'
 #' @importFrom dplyr %>% bind_cols mutate pull
 #' @importFrom tibble as_tibble
 #' @importFrom rlang := sym
@@ -96,7 +102,7 @@ bayesian_isotonic = function(data_grouped = NULL,
   stopifnot(all(pull(data_grouped,y) >= 0) &&
               all(pull(data_grouped,y) <= pull(data_grouped,n)));
   stopifnot(conf_level >= 0 && conf_level <= 1);
-  stopifnot(priot_type %in% c("horseshoe", "gamma"))
+  stopifnot(prior_type %in% c("horseshoe", "gamma"))
 
   if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
     stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")

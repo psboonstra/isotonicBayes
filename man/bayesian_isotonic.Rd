@@ -84,6 +84,13 @@ of all parameters.}
 \description{
 bayesian_isotonic
 }
+\examples{
+
+set.seed(1)
+fake_data <- make_grouped_data(runif(100), rbinom(100, 1, 0.5))
+bayesian_isotonic(data_grouped = fake_data)
+
+}
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}
 }

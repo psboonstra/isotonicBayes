@@ -1,12 +1,43 @@
-#' solve_hs_scale
+#' solve_for_hs_scale
 #'
-#' @param target_mean
+#' @param target_mean a number in 0,1 giving the desired proportion of non-zero
+#' parameters to which the returned scale value should correspond.
 #'
+#' @param local_dof a positive number giving the degrees of freedom for the
+#' t-distribution of the local shrinkage parameter.
+#' local_dof = global_dof = 1 corresponds to the horseshoe
+#'
+#' @param global_dof a positive number giving the degrees of freedom for the
+#' t-distribution of the global shrinkage parameter.
+#' local_dof = global_dof = 1 corresponds to the horseshoe
+#'
+#' @param slab_precision a positive number giving the precision of the slab
+#' component of the regularized horseshoe.
+#'
+#' @param n a positive integer giving the sample size
+#'
+#' @param sigma the presumed standard deviation parameter for the measurement error.
+#' If the outcome is binary, then sigma=2 corresponds to the most conservative
+#' choice in the sense of yielding more shrinkage than desired (\insertCite{piironen2017hyperprior}{isotonicBayes})
+#'
+#' @param tol a small number giving the acceptable numerical tolerance
+#' for determining equality
+#'
+#' @param max_iter a positive integer giving the maximum number of iterations
+#' to proceed without convergence before giving up
+#'
+#' @param n_sim a positive integer giving the number of random draws from the
+#' t-distributions with which to estimate expectations
 #'
 #' @references
-#' \insertRef{boonstra2020}{isotonicBayes}
+#' \insertRef{boonstra2020b}{isotonicBayes}
+#' \insertRef{piironen2017hyperprior}{isotonicBayes}
 #'
 #' @examples
+#' solve_for_hs_scale(target_mean = 0.1, n = 100, n_sim = 1e5)
+#'
+#'
+#' @export
 #'
 #' @importFrom stats rt rnorm
 #' @importFrom Rdpack reprompt

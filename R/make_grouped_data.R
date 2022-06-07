@@ -16,7 +16,12 @@
 #'
 #' @examples
 #'
-#' @importFrom dplyr %>% group_by summarize arrange mutate
+#' set.seed(1)
+#' make_grouped_data(runif(100), rbinom(100, 1, 0.5))
+#'
+#' @export
+#'
+#' @importFrom dplyr %>% group_by summarize arrange mutate n
 #' @importFrom stats quantile
 #' @importFrom tibble tibble
 #' @importFrom Rdpack reprompt

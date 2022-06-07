@@ -12,6 +12,13 @@
 #'
 #' @examples
 #'
+#' set.seed(1)
+#' fake_data <- make_grouped_data(runif(100), rbinom(100, 1, 0.5))
+#' fake_model <- bayesian_isotonic(data_grouped = fake_data, return_as_stan_object = TRUE)
+#' count_stan_divergences(fake_model)
+#'
+#' @export
+#'
 #' @importFrom rstan get_sampler_params
 
 count_stan_divergences = function(stan_fit) {

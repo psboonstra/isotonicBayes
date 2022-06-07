@@ -35,7 +35,7 @@ component of the regularized horseshoe.}
 
 \item{sigma}{the presumed standard deviation parameter for the measurement error.
 If the outcome is binary, then sigma=2 corresponds to the most conservative
-choice in the sense of yielding more shrinkage than desired.}
+choice in the sense of yielding more shrinkage than desired \insertCite{piironen2017hyperprior}{isotonicBayes}}
 
 \item{tol}{a small number giving the acceptable numerical tolerance
 for determining equality}
@@ -56,5 +56,6 @@ solve_for_hs_scale(target_mean = 0.1, n = 100, n_sim = 1e5)
 }
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}
+
 \insertRef{piironen2017hyperprior}{isotonicBayes}
 }

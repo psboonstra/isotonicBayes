@@ -1,7 +1,8 @@
 #' @title Count divergences
 #'
 #' @description This is a helper function to count the number of divergences
-#' for an object of class [rstan::stanfit()]
+#' for an object of class [rstan::stanfit()]. It is used within `bayesian_isotonic`
+#' but can also be used on its own
 #'
 #' @param stan_fit an object of class [rstan::stanfit()]
 #'
@@ -17,7 +18,6 @@
 #' fake_model <- bayesian_isotonic(data_grouped = fake_data, return_as_stan_object = TRUE)
 #' count_stan_divergences(fake_model)
 #'
-#' @export
 #'
 #' @importFrom rstan get_sampler_params
 

@@ -3,14 +3,13 @@ Title: Isotonic regression for binary outcomes using Gamma and Horseshoe-based
   priors
 Version: 0.0.1
 Authors@R: 
-    person(given = "Philip",
-           middle = "S",
+    person(given = "Philip S.",
            family = "Boonstra",
            role = c("aut", "cre"),
            email = "philb@umich.edu",
            comment = c(ORCID = "0000-0001-8545-9133"))
-Description: This package implements the isotonic regression priors developed
-  in Boonstra, Owen, and Kang (2021). 
+Description: This package implements the isotonic probability vector priors 
+  developed in Boonstra, Owen, and Kang (2020). 
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

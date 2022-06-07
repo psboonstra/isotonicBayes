@@ -18,7 +18,7 @@
 #'
 #' @param sigma the presumed standard deviation parameter for the measurement error.
 #' If the outcome is binary, then sigma=2 corresponds to the most conservative
-#' choice in the sense of yielding more shrinkage than desired (\insertCite{piironen2017hyperprior}{isotonicBayes})
+#' choice in the sense of yielding more shrinkage than desired \insertCite{piironen2017hyperprior}{isotonicBayes}
 #'
 #' @param tol a small number giving the acceptable numerical tolerance
 #' for determining equality
@@ -30,7 +30,9 @@
 #' t-distributions with which to estimate expectations
 #'
 #' @references
+#'
 #' \insertRef{boonstra2020b}{isotonicBayes}
+#'
 #' \insertRef{piironen2017hyperprior}{isotonicBayes}
 #'
 #' @examples

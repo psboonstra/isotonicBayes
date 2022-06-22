@@ -18,6 +18,7 @@
 #' fake_model <- bayesian_isotonic(data_grouped = fake_data, return_as_stan_object = TRUE)
 #' count_stan_divergences(fake_model)
 #'
+#' @export
 #'
 #' @importFrom rstan get_sampler_params
 

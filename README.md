@@ -6,12 +6,12 @@
 
 `isotonicBayes` implements the isotonic priors developed in Boonstra, Owen, 
 and Kang (2020). The assumed context is a binary outcome the probability of which is assumed
-to be non-decreasing in a given predictor. 
+to be non-decreasing in a given categorical predictor. 
 
 
 ## Installation
 
-You can install the released version of isotonicBayes using
+You can install the released version of `isotonicBayes` using
 
 ``` r
 devtools::install_github("psboonstra/isotonicBayes")

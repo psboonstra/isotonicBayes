@@ -8,20 +8,19 @@ bayesian_isotonic(
   data_grouped = NULL,
   prior_type = "horseshoe",
   stan_args = list(local_dof_stan = 1, global_dof_stan = 1, alpha_scale_stan = 1),
-  sample_from_prior_only = F,
+  sample_from_prior_only = FALSE,
   conf_level = 0.5,
   conf_level_direction = "both",
   sig_threshold = c(0.005, 0.01, 0.05),
-  verbose = F,
-  n_mc_warmup = 2500,
-  n_mc_samps = 5000,
+  verbose = FALSE,
+  mc_warmup = 2500,
+  mc_samps = 5000,
   mc_chains = 1,
   mc_thin = 1,
   mc_stepsize = 0.1,
   mc_adapt_delta = 0.99,
   mc_max_treedepth = 15,
-  return_as_stan_object = F,
-  tol = .Machine$double.eps^0.5,
+  return_as_stan_object = FALSE,
   stan_seed = sample.int(.Machine$integer.max, 1)
 )
 }
@@ -45,7 +44,7 @@ components: alpha_shape_stan (the shape tuning parameter) and tiny_positive_stan
 (a small number specifying the lower truncation of the gamma distribution)}
 
 \item{sample_from_prior_only}{a logical that offers an easy way to sample from the
-prior. If TRUE, the data provided via data_grouped are ignored.}
+prior. If TRUE, the data provided via data_grouped are ignored}
 
 \item{conf_level}{a number between 0 and 1 specifying the posterior quantiles
 to be calculated. The default value is 0.50, meaning that the function
@@ -56,30 +55,33 @@ distribution of each parameter}
 
 \item{sig_threshold}{a vector of proportions. For each proportion, the posterior
 probability that each increment exceeds that proportion will be calculated
-and returned.}
+and returned}
 
 \item{verbose}{a logical indicating whether to return all posterior draws
-of all parameters.}
+of all parameters}
 
-\item{n_mc_warmup}{see below}
+\item{mc_warmup}{passed to \code{\link[rstan:stan]{rstan::stan}} as the value of \code{warmup}}
 
-\item{n_mc_samps}{see below}
+\item{mc_samps}{the sum of \code{mc_warmup} and \code{mc_samps} is passed to
+\code{\link[rstan:stan]{rstan::stan()}} as the value of \code{iter}}
 
-\item{mc_chains}{see below}
+\item{mc_chains}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{chains}}
 
-\item{mc_thin}{see below}
+\item{mc_thin}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{thin}}
 
-\item{mc_stepsize}{see below}
+\item{mc_stepsize}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{stepsize}
+(inside \code{control})}
 
-\item{mc_adapt_delta}{see below}
+\item{mc_adapt_delta}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{adapt_delta}
+(inside \code{control})}
 
-\item{mc_max_treedepth}{All}
+\item{mc_max_treedepth}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{max_treedepth}
+(inside \code{control})}
 
-\item{return_as_stan_object}{= F}
+\item{return_as_stan_object}{a logical. Should the function return an object
+of class \code{stanfit}? Defaults to \code{FALSE}}
 
-\item{tol}{= .Machine$double.eps^0.5}
-
-\item{stan_seed}{= sample.int(.Machine$integer.max, 1)}
+\item{stan_seed}{A positive integer to seed}
 }
 \description{
 bayesian_isotonic

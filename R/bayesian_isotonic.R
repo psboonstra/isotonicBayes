@@ -21,7 +21,7 @@
 #' (a small number specifying the lower truncation of the gamma distribution)
 #'
 #' @param sample_from_prior_only a logical that offers an easy way to sample from the
-#' prior. If TRUE, the data provided via data_grouped are ignored.
+#' prior. If TRUE, the data provided via data_grouped are ignored
 #'
 #' @param conf_level a number between 0 and 1 specifying the posterior quantiles
 #' to be calculated. The default value is 0.50, meaning that the function
@@ -32,30 +32,34 @@
 #'
 #' @param sig_threshold a vector of proportions. For each proportion, the posterior
 #' probability that each increment exceeds that proportion will be calculated
-#' and returned.
+#' and returned
 #'
 #' @param verbose a logical indicating whether to return all posterior draws
-#' of all parameters.
+#' of all parameters
 #'
-#' @param n_mc_warmup see below
+#' @param mc_warmup passed to \code{\link[rstan:stan]{stan()}} as the value of `warmup`
 #'
-#' @param n_mc_samps see below
+#' @param mc_samps the sum of `mc_warmup` and `mc_samps` is passed to
+#' \code{\link[rstan:stan]{stan()}} as the value of `iter`
 #'
-#' @param mc_chains see below
+#' @param mc_chains passed to \code{\link[rstan:stan]{stan()}} as the value of `chains`
 #'
-#' @param mc_thin see below
+#' @param mc_thin passed to \code{\link[rstan:stan]{stan()}} as the value of `thin`
 #'
-#' @param mc_stepsize see below
+#' @param mc_stepsize passed to \code{\link[rstan:stan]{stan()}} as the value of `stepsize`
+#' (inside `control`)
 #'
-#' @param mc_adapt_delta see below
+#' @param mc_adapt_delta passed to \code{\link[rstan:stan]{stan()}} as the value of `adapt_delta`
+#' (inside `control`)
 #'
-#' @param mc_max_treedepth All
+#' @param mc_max_treedepth passed to \code{\link[rstan:stan]{stan()}} as the value of `max_treedepth`
+#' (inside `control`)
 #'
-#' @param return_as_stan_object = F
+#' @param return_as_stan_object a logical. Should the function return an object
+#' of class `stanfit`? Defaults to `FALSE`
 #'
-#' @param tol = .Machine$double.eps^0.5
 #'
-#' @param stan_seed = sample.int(.Machine$integer.max, 1)
+#' @param stan_seed A positive integer to seed
 #'
 #' @references
 #' \insertRef{boonstra2020b}{isotonicBayes}
@@ -81,20 +85,19 @@ bayesian_isotonic = function(data_grouped = NULL,
                                local_dof_stan = 1,
                                global_dof_stan = 1,
                                alpha_scale_stan = 1),
-                             sample_from_prior_only = F,
+                             sample_from_prior_only = FALSE,
                              conf_level = 0.50,
                              conf_level_direction = "both",
                              sig_threshold = c(0.005, 0.01, 0.05),
-                             verbose = F,
-                             n_mc_warmup = 2.5e3,
-                             n_mc_samps = 5e3,
+                             verbose = FALSE,
+                             mc_warmup = 2.5e3,
+                             mc_samps = 5e3,
                              mc_chains = 1,
                              mc_thin = 1,
                              mc_stepsize = 0.1,
                              mc_adapt_delta = 0.99,
                              mc_max_treedepth = 15,
-                             return_as_stan_object = F,
-                             tol = .Machine$double.eps^0.5,
+                             return_as_stan_object = FALSE,
                              stan_seed = sample.int(.Machine$integer.max, 1)) {
 
   stopifnot(isTRUE("data.frame" %in% class(data_grouped)))
@@ -118,10 +121,13 @@ bayesian_isotonic = function(data_grouped = NULL,
                                      y_stan = as.array(pull(data_grouped,y)),
                                      only_prior_stan = as.integer(sample_from_prior_only)),
                                 stan_args),
-                       warmup = n_mc_warmup,
-                       iter = n_mc_samps + n_mc_warmup,
+                       warmup = mc_warmup,
+                       iter = mc_samps + mc_warmup,
                        chains = mc_chains,
                        thin = mc_thin,
+                       control = list(adapt_delta = mc_adapt_delta,
+                                      stepsize = mc_stepsize,
+                                      max_treedepth = mc_max_treedepth),
                        seed = stan_seed,
                        verbose = F,
                        refresh = 0)

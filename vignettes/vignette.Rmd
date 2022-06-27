@@ -1,0 +1,279 @@
+---
+title: "Vignette for `bayesian_isotonic()`"
+author: "Philip S. Boonstra"
+date: "June 23, 2022"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette for `bayesian_isotonic()`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+knitr::opts_chunk$set(warning = T, message = T, cache = F, include = T)
+```
+
+```{r setup}
+library(isotonicBayes)
+library(tidyverse)
+options(digits = 3)
+```
+
+# Introduction
+
+This vignette presents a step-by-step approach for using the `R` 
+function `bayesian_isotonic()`, located in the project script `functions.R`. 
+
+We create a simple dataset with a binary outcome $Y$ and a continuous
+predictor $X$ where $\Pr(Y=1|X)$ is definitely not logistic shaped. We 
+categorize the predictor into its groups, since the methodology assumes 
+that the predictor is categorical (this is, in my opinion, not a particularly
+constraining assumption, since even methods for which the theory is based 
+upon a continuous predictor ultimately categorize the predictor when it
+comes times to fit the model). 
+
+We group the data into the format expected by the function and then 
+show how you can apply the HSIPV and GAIPV priors to estimate the
+probability curve. 
+
+## Draw data
+
+First we draw the data:
+
+```{r draw_data, cache = TRUE}
+n = 200;
+set.seed(7201969) # Moon landing!
+x <- sample(x = seq(0.05, 0.95, by = 0.05), 
+            size = n, 
+            replace = TRUE);
+true_prob = function(x) {
+  0.35 * plogis(x, location = 0.25, scale = 0.015) +
+    0.65 * plogis(x, location = 0.75, scale = 0.015)
+}
+
+y <- rbinom(n, 1, true_prob(x))
+```
+
+We make `r n` draws of a discrete uniform random variable to use as our 
+predictor. To calculate the true probabilities, we use a function called
+`true_prob()` that is a mixture of two logistic CDFs and then sample
+a Bernoulli outcome according to these true probabilities. Note that this
+is the same data generating mechanism as in scenario 2 of the 
+**Varying-data evaluation** of the manuscript. 
+
+The function `bayesian_isotonic()` requires that the data will be provided
+as a data.frame with two named columns: `y` and `n`, where the `y` value
+is essentially a binomial random variable for the number of successes out of 
+the corresponding `n` trials. The ordering of the rows represents the 
+ordered categories of `x`. That is, $\xi_1$ corresponds to the first
+row, $\xi_2$ to the second row, and so on. Here is how you would turn an
+`x` and a `y` into an appropriate data frame:
+
+
+```{r, cache = TRUE}
+data_grouped <- 
+  tibble(x = x, 
+         y = y) %>%
+  group_by(x) %>%
+  summarize(n = length(x),
+            y = as.integer(sum(y))) %>%
+  arrange(x)
+
+n_breaks <- nrow(data_grouped) # This is K
+```
+
+
+## If categorizing a continuous predictor
+
+The theory we've developed assumes that `x` is categorical. If you have a
+continuous predictor `x`, we've provided a helper function called `make_grouped_data()` 
+in the `isotonicBayes` package that will take a continuous `x` and binary `y` (and, optionally, a value of the desired breakpoints) and return a properly formatted data.frame. If 
+breaks is not provided, the function divides the data into quintiles, i.e. 
+five equally sized categories.
+
+I would point out that most methods that non-parametrically estimate the
+x-y curve will at some point categorize the predictor, so the fact that
+our theory starts with an assumption of a categorical x (rather than 
+a continuous x but then categorizing it to actually fit the model) isn't 
+really as different as it seems. 
+
+```{r categorize_data, eval = FALSE}
+# Not run 
+n_breaks = round(n / 10)
+# Not run 
+breaks <- 
+  quantile(x, probs = seq(0, 1, length = n_breaks + 1)) %>%
+  as.numeric() %>%
+  replace(which.min(.), -Inf) %>% 
+  replace(which.max(.), Inf)
+# Not run 
+data_grouped <- 
+  make_grouped_data(x, y, breaks)
+```
+
+
+### HSIPV
+
+Now we can fit the HSIPV-based model to these data. To do so, you must specify `prior_type = "horseshoe"` in the `bayesian_isotonic()` 
+function (this is currently the default value of `prior_type`). You specify the
+hyperparameters via the `stan_args` argument, which will be a named list. For the HSIPV prior, `stan_args` must contain the following components: `local_dof_stan` (the degrees of freedom for local shrinkage), `global_dof_stan` (degrees of freedom for the global shrinkage), and `alpha_scale_stan` (the $c$ parameter). If you want to have access to the individual draws from the posterior distribution, set `verbose = TRUE`. There are other arguments, but in most use cases you must provide values for `data_grouped`, `prior_type`, and `stan_args`.
+
+There is a function called `solve_for_hs_scale()` that identifies the value
+of $c$ (`alpha_scale_stan`) solving equation (2.9) in the manuscript. For a selected value of $\tilde{m}_\mathrm{eff}$, set `target_mean` equal to $\tilde{m}_\mathrm{eff} / (K+1)$. Here we are targeting $\tilde{m}_\mathrm{eff}=0.5$, so `target_mean =` `r 0.5 / (n_breaks+1)`.  
+
+```{r fit_hsipv, cache = TRUE}
+hs_stan_args = 
+  list(
+    local_dof_stan = 1, 
+    global_dof_stan = 1,
+    alpha_scale_stan = solve_for_hs_scale(
+      target_mean = 0.5 / (n_breaks + 1), #target_mean * (K+1) = m_eff
+      local_dof = 1, 
+      global_dof = 1, 
+      slab_precision = 1,
+      n = (n - 2),
+      sigma = 2
+    )$scale)
+
+hs_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "horseshoe", 
+                    stan_args = hs_stan_args,
+                    verbose = TRUE)
+```
+
+
+### GAIPV
+
+To fit the GAIPV-based model, use `bayesian_isotonic()` with `prior_type = "gamma"`. When fitting a GAIPV-based model, the `stan_args` must contain the following two named components: `alpha_shape_stan` (the $s$ parameter) and `tiny_positive_stan` (where to truncate the support of the distribution from below). 
+
+The GAIPV-based models from the paper can be implemented as follows. **GA$_1$** to
+**GA$_4$** all use $0.5 / (K+1) = $ `r 0.5 / (n_breaks + 1)` as the shape parameter, corresponding to 0.5 effective prior observations. They differ in
+their values of the lower truncation: **GA$_1$** uses `r .Machine$double.eps`, **GA$_2$** uses `r .Machine$double.eps/10`, **GA$_3$** uses `r .Machine$double.eps/100`, and  **GA$_4$** uses 0 (this is no truncation). **GA$_5$** uses 1 as the shape parameter and 0 as the lower truncation. 
+
+We do not actually run **GA$_4$** due to running time. 
+
+```{r fit_gaipv, cache = TRUE}
+ga_stan_args = 
+  list(
+    # GA_1
+    gamma1 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
+         tiny_positive_stan = .Machine$double.eps),
+    # GA_2
+    gamma2 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
+         tiny_positive_stan = .Machine$double.eps/10),
+    # GA_3 (skipped due to long run time)
+    gamma3 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
+         tiny_positive_stan = .Machine$double.eps/100),
+    # GA_4 (skipped due to long run time)
+    gamma4 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
+         tiny_positive_stan = 0),
+    #GA_5 
+    gamma5 = list(alpha_shape_stan = 1, 
+         tiny_positive_stan = 0))
+
+ga1_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "gamma", 
+                    stan_args = ga_stan_args[["gamma1"]],
+                    verbose = TRUE)
+
+ga2_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "gamma", 
+                    stan_args = ga_stan_args[["gamma2"]],
+                    verbose = TRUE)
+
+ga5_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "gamma", 
+                    stan_args = ga_stan_args[["gamma5"]],
+                    verbose = TRUE)
+
+```
+
+```{r fit_gaipv2, eval = FALSE}
+# not run
+ga3_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "gamma", 
+                    stan_args = ga_stan_args[["gamma3"]],
+                    verbose = TRUE)
+# not run
+ga4_fit = 
+  bayesian_isotonic(data_grouped = data_grouped,
+                    prior_type = "gamma", 
+                    stan_args = ga_stan_args[["gamma4"]],
+                    verbose = TRUE)
+```
+
+
+### Plot results
+
+We can plot the fitted models with the following code. In addition to plotting the interpolated fitted models, we also plot the true probability curve and the observed prevalence of the outcome in each category of the predictor. The size of the bubbles correspond to the number of observations in that category. 
+
+
+```{r plot_results, cache = TRUE, fig.width = 7, fig.height = 4, fig.align="center"}
+
+ggplot(data = data_grouped) + 
+  geom_line(aes(x = x, 
+                y = colMeans(hs_fit$all_draws$xi),
+                color = "HS")) +
+  geom_line(aes(x = x, 
+                y = colMeans(ga1_fit$all_draws$xi),
+                color = "GA1")) +
+  geom_line(aes(x = x, 
+                y = colMeans(ga5_fit$all_draws$xi),
+                color = "GA5")) +
+  geom_point(aes(x = x, 
+                 y = y / n,
+                 size = n,
+                 color = "Observed prevalences")) +
+  geom_line(aes(x = x, 
+                y = true_prob(x),
+                color = "True probability"), 
+            linetype = 2) + 
+  scale_color_brewer(palette = "Dark2") + 
+  scale_size_continuous(range = c(2,5),
+                        breaks = seq(min(data_grouped$n), 
+                                     max(data_grouped$n),
+                                     by = 3)) +
+  guides(color = guide_legend(override.aes = 
+                                list(shape = c(NA, NA, NA, 16, NA),
+                                     linetype = c(1, 1, 1, 0, 2))), 
+         size = guide_legend(override.aes = 
+                               list(color = RColorBrewer::brewer.pal(5, "Dark2")[4]))) + 
+  coord_cartesian(ylim = c(0, 1)) + 
+  labs(x = "x", y = "Pr(Y=1|x)", color = "Method") + 
+  theme(text = element_text(size = 14))
+
+```
+
+The `bayesian_isotonic()` function returns other results. Below we can see that
+the horseshoe prior runs faster and with fewer divergences than the gamma-based
+prior. 
+
+
+```{r, other_results, cache = TRUE, delay = TRUE}
+
+names(hs_fit)
+hs_fit$number_divergences
+hs_fit$total_run_time_secs
+
+names(ga1_fit)
+ga1_fit$number_divergences
+ga1_fit$total_run_time_secs
+
+names(ga2_fit)
+ga2_fit$number_divergences
+ga2_fit$total_run_time_secs
+
+names(ga5_fit)
+ga5_fit$number_divergences
+ga5_fit$total_run_time_secs
+
+```

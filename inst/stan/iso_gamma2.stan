@@ -16,7 +16,7 @@ parameters {
 transformed parameters {
   vector<lower = 0.0,upper = 1.0>[n_groups_stan] xi; //
   real<lower = scaled_tiny_positive_stan> sum_alpha;
-  sum_alpha =  tiny_positive_stan + sum(alpha);
+  sum_alpha =  scaled_tiny_positive_stan + sum(alpha);
   xi[1] = alpha[1] / sum_alpha;
   if(n_groups_stan > 1) {
     for(i in 2:n_groups_stan) {

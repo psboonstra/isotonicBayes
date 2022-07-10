@@ -19,7 +19,7 @@ knitr::opts_chunk$set(warning = T, message = T, cache = F, include = T)
 
 ```{r setup}
 library(isotonicBayes)
-library(tidyverse)
+library(dplyr)
 options(digits = 3)
 ```
 
@@ -162,19 +162,19 @@ ga_stan_args =
   list(
     # GA_1
     gamma1 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
-         tiny_positive_stan = .Machine$double.eps),
+                  tiny_positive_stan = .Machine$double.eps),
     # GA_2
     gamma2 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
-         tiny_positive_stan = .Machine$double.eps/10),
+                  tiny_positive_stan = .Machine$double.eps/10),
     # GA_3 (skipped due to long run time)
     gamma3 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
-         tiny_positive_stan = .Machine$double.eps/100),
+                  tiny_positive_stan = .Machine$double.eps/100),
     # GA_4 (skipped due to long run time)
     gamma4 = list(alpha_shape_stan = 0.5 / (n_breaks + 1), 
-         tiny_positive_stan = 0),
+                  tiny_positive_stan = 0),
     #GA_5 
     gamma5 = list(alpha_shape_stan = 1, 
-         tiny_positive_stan = 0))
+                  tiny_positive_stan = 0))
 
 ga1_fit = 
   bayesian_isotonic(data_grouped = data_grouped,
@@ -219,7 +219,7 @@ We can plot the fitted models with the following code. In addition to plotting t
 
 ```{r plot_results, cache = TRUE, fig.width = 7, fig.height = 4, fig.align="center"}
 
-ggplot(data = data_grouped) + 
+ggplot2::ggplot(data = data_grouped) + 
   geom_line(aes(x = x, 
                 y = colMeans(hs_fit$all_draws$xi),
                 color = "HS")) +

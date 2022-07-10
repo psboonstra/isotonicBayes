@@ -60,22 +60,22 @@ and returned}
 \item{verbose}{a logical indicating whether to return all posterior draws
 of all parameters}
 
-\item{mc_warmup}{passed to \code{\link[rstan:stan]{rstan::stan}} as the value of \code{warmup}}
+\item{mc_warmup}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{warmup}}
 
 \item{mc_samps}{the sum of \code{mc_warmup} and \code{mc_samps} is passed to
-\code{\link[rstan:stan]{rstan::stan()}} as the value of \code{iter}}
+\code{\link[rstan:stan]{stan()}} as the value of \code{iter}}
 
-\item{mc_chains}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{chains}}
+\item{mc_chains}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{chains}}
 
-\item{mc_thin}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{thin}}
+\item{mc_thin}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{thin}}
 
-\item{mc_stepsize}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{stepsize}
+\item{mc_stepsize}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{stepsize}
 (inside \code{control})}
 
-\item{mc_adapt_delta}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{adapt_delta}
+\item{mc_adapt_delta}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{adapt_delta}
 (inside \code{control})}
 
-\item{mc_max_treedepth}{passed to \code{\link[rstan:stan]{rstan::stan()}} as the value of \code{max_treedepth}
+\item{mc_max_treedepth}{passed to \code{\link[rstan:stan]{stan()}} as the value of \code{max_treedepth}
 (inside \code{control})}
 
 \item{return_as_stan_object}{a logical. Should the function return an object

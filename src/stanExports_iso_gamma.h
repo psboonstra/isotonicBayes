@@ -227,7 +227,7 @@ public:
             stan::math::fill(sum_alpha, DUMMY_VAR__);
             // transformed parameters block statements
             current_statement_begin__ = 19;
-            stan::math::assign(sum_alpha, (scaled_tiny_positive_stan + ((1 + scaled_tiny_positive_stan) * sum(alpha))));
+            stan::math::assign(sum_alpha, (scaled_tiny_positive_stan + sum(alpha)));
             current_statement_begin__ = 20;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
@@ -348,7 +348,7 @@ public:
             stan::math::fill(sum_alpha, DUMMY_VAR__);
             // do transformed parameters statements
             current_statement_begin__ = 19;
-            stan::math::assign(sum_alpha, (scaled_tiny_positive_stan + ((1 + scaled_tiny_positive_stan) * sum(alpha))));
+            stan::math::assign(sum_alpha, (scaled_tiny_positive_stan + sum(alpha)));
             current_statement_begin__ = 20;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 

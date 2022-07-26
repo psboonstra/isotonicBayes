@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_iso_horseshoe2");
-    reader.add_event(60, 58, "end", "model_iso_horseshoe2");
+    reader.add_event(57, 55, "end", "model_iso_horseshoe2");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -362,40 +362,32 @@ public:
             current_statement_begin__ = 32;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
             current_statement_begin__ = 33;
-            stan::model::assign(theta, 
-                        stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
-                        "assigning variable theta");
-            current_statement_begin__ = 34;
+            for (int i = 1; i <= n_groups_stan; ++i) {
+                current_statement_begin__ = 34;
+                stan::model::assign(theta, 
+                            stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
+                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
+                            "assigning variable theta");
+            }
+            current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 35;
-            if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 36;
-                for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 37;
-                    stan::model::assign(theta, 
-                                stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                                (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
-                                "assigning variable theta");
-                }
-            }
-            current_statement_begin__ = 40;
+            current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
-            current_statement_begin__ = 41;
+            current_statement_begin__ = 38;
             stan::math::assign(normalized_alpha, divide(alpha, sum(alpha)));
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 39;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                         get_base1(normalized_alpha, 1, "normalized_alpha", 1), 
                         "assigning variable xi");
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 40;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 44;
+                current_statement_begin__ = 41;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 45;
+                    current_statement_begin__ = 42;
                     stan::model::assign(xi, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (get_base1(xi, (i - 1), "xi", 1) + get_base1(normalized_alpha, i, "normalized_alpha", 1)), 
@@ -466,19 +458,19 @@ public:
             check_greater_or_equal(function__, "normalized_alpha", normalized_alpha, 0.0);
             check_less_or_equal(function__, "normalized_alpha", normalized_alpha, 1.0);
             // model body
-            current_statement_begin__ = 50;
+            current_statement_begin__ = 47;
             lp_accum__.add(normal_log<propto__>(alpha_raw, 0.0, 1.0));
-            current_statement_begin__ = 51;
+            current_statement_begin__ = 48;
             lp_accum__.add(chi_square_log<propto__>(tau_base_sq, 1.0));
-            current_statement_begin__ = 52;
+            current_statement_begin__ = 49;
             lp_accum__.add(inv_gamma_log<propto__>(tau_scale_sq, (global_dof_stan / 2.0), (global_dof_stan / 2.0)));
-            current_statement_begin__ = 53;
+            current_statement_begin__ = 50;
             lp_accum__.add(chi_square_log<propto__>(lambda_base_sq, 1.0));
-            current_statement_begin__ = 54;
+            current_statement_begin__ = 51;
             lp_accum__.add(inv_gamma_log<propto__>(lambda_scale_sq, (local_dof_stan / 2.0), (local_dof_stan / 2.0)));
-            current_statement_begin__ = 55;
+            current_statement_begin__ = 52;
             if (as_bool(logical_eq(only_prior_stan, 0))) {
-                current_statement_begin__ = 56;
+                current_statement_begin__ = 53;
                 lp_accum__.add(binomial_log<propto__>(y_stan, n_per_group_stan, xi));
             }
         } catch (const std::exception& e) {
@@ -624,40 +616,32 @@ public:
             current_statement_begin__ = 32;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
             current_statement_begin__ = 33;
-            stan::model::assign(theta, 
-                        stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
-                        "assigning variable theta");
-            current_statement_begin__ = 34;
+            for (int i = 1; i <= n_groups_stan; ++i) {
+                current_statement_begin__ = 34;
+                stan::model::assign(theta, 
+                            stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
+                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
+                            "assigning variable theta");
+            }
+            current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 35;
-            if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 36;
-                for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 37;
-                    stan::model::assign(theta, 
-                                stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                                (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
-                                "assigning variable theta");
-                }
-            }
-            current_statement_begin__ = 40;
+            current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
-            current_statement_begin__ = 41;
+            current_statement_begin__ = 38;
             stan::math::assign(normalized_alpha, divide(alpha, sum(alpha)));
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 39;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                         get_base1(normalized_alpha, 1, "normalized_alpha", 1), 
                         "assigning variable xi");
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 40;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 44;
+                current_statement_begin__ = 41;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 45;
+                    current_statement_begin__ = 42;
                     stan::model::assign(xi, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (get_base1(xi, (i - 1), "xi", 1) + get_base1(normalized_alpha, i, "normalized_alpha", 1)), 

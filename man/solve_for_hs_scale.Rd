@@ -18,7 +18,7 @@ solve_for_hs_scale(
 }
 \arguments{
 \item{target_mean}{a number in 0,1 giving the desired proportion of non-zero
-parameters to which the returned scale value should correspond.}
+parameters}
 
 \item{local_dof}{a positive number giving the degrees of freedom for the
 t-distribution of the local shrinkage parameter.

@@ -33,7 +33,7 @@ transformed parameters {
   for(i in 1:n_groups_stan) {
     theta[i] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq[1] * lambda_sq[i])));
   }
-  theta[n_groups_stan+1] = 1.0 / sqrt(1.0 + (1.0 / (tau_sq[2] * lambda_sq[n_groups_stan+1])));
+  theta[n_groups_stan+1] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq[2] * lambda_sq[n_groups_stan+1])));
   alpha = (theta .* alpha_raw);
   normalized_alpha = alpha / sum(alpha);
   xi[1] = normalized_alpha[1];

@@ -382,7 +382,7 @@ public:
             current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (get_base1(tau_sq, 2, "tau_sq", 1) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * get_base1(tau_sq, 2, "tau_sq", 1)) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
@@ -648,7 +648,7 @@ public:
             current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (get_base1(tau_sq, 2, "tau_sq", 1) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * get_base1(tau_sq, 2, "tau_sq", 1)) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));

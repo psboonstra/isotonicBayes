@@ -162,9 +162,11 @@ public:
             validate_non_negative_index("alpha_raw", "(n_groups_stan + 1)", (n_groups_stan + 1));
             num_params_r__ += (n_groups_stan + 1);
             current_statement_begin__ = 18;
-            num_params_r__ += 1;
+            validate_non_negative_index("tau_base_sq", "2", 2);
+            num_params_r__ += 2;
             current_statement_begin__ = 19;
-            num_params_r__ += 1;
+            validate_non_negative_index("tau_scale_sq", "2", 2);
+            num_params_r__ += 2;
             current_statement_begin__ = 21;
             validate_non_negative_index("lambda_base_sq", "(n_groups_stan + 1)", (n_groups_stan + 1));
             num_params_r__ += (n_groups_stan + 1);
@@ -210,11 +212,15 @@ public:
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable tau_base_sq missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("tau_base_sq");
         pos__ = 0U;
-        context__.validate_dims("parameter initialization", "tau_base_sq", "double", context__.to_vec());
-        double tau_base_sq(0);
-        tau_base_sq = vals_r__[pos__++];
+        validate_non_negative_index("tau_base_sq", "2", 2);
+        context__.validate_dims("parameter initialization", "tau_base_sq", "vector_d", context__.to_vec(2));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> tau_base_sq(2);
+        size_t tau_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_base_sq_j_1_max__; ++j_1__) {
+            tau_base_sq(j_1__) = vals_r__[pos__++];
+        }
         try {
-            writer__.scalar_lb_unconstrain(0.0, tau_base_sq);
+            writer__.vector_lb_unconstrain(0.0, tau_base_sq);
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable tau_base_sq: ") + e.what()), current_statement_begin__, prog_reader__());
         }
@@ -223,11 +229,15 @@ public:
             stan::lang::rethrow_located(std::runtime_error(std::string("Variable tau_scale_sq missing")), current_statement_begin__, prog_reader__());
         vals_r__ = context__.vals_r("tau_scale_sq");
         pos__ = 0U;
-        context__.validate_dims("parameter initialization", "tau_scale_sq", "double", context__.to_vec());
-        double tau_scale_sq(0);
-        tau_scale_sq = vals_r__[pos__++];
+        validate_non_negative_index("tau_scale_sq", "2", 2);
+        context__.validate_dims("parameter initialization", "tau_scale_sq", "vector_d", context__.to_vec(2));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> tau_scale_sq(2);
+        size_t tau_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_scale_sq_j_1_max__; ++j_1__) {
+            tau_scale_sq(j_1__) = vals_r__[pos__++];
+        }
         try {
-            writer__.scalar_lb_unconstrain(0.0, tau_scale_sq);
+            writer__.vector_lb_unconstrain(0.0, tau_scale_sq);
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable tau_scale_sq: ") + e.what()), current_statement_begin__, prog_reader__());
         }
@@ -298,19 +308,19 @@ public:
             else
                 alpha_raw = in__.vector_lb_constrain(0.0, (n_groups_stan + 1));
             current_statement_begin__ = 18;
-            local_scalar_t__ tau_base_sq;
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> tau_base_sq;
             (void) tau_base_sq;  // dummy to suppress unused var warning
             if (jacobian__)
-                tau_base_sq = in__.scalar_lb_constrain(0.0, lp__);
+                tau_base_sq = in__.vector_lb_constrain(0.0, 2, lp__);
             else
-                tau_base_sq = in__.scalar_lb_constrain(0.0);
+                tau_base_sq = in__.vector_lb_constrain(0.0, 2);
             current_statement_begin__ = 19;
-            local_scalar_t__ tau_scale_sq;
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> tau_scale_sq;
             (void) tau_scale_sq;  // dummy to suppress unused var warning
             if (jacobian__)
-                tau_scale_sq = in__.scalar_lb_constrain(0.0, lp__);
+                tau_scale_sq = in__.vector_lb_constrain(0.0, 2, lp__);
             else
-                tau_scale_sq = in__.scalar_lb_constrain(0.0);
+                tau_scale_sq = in__.vector_lb_constrain(0.0, 2);
             current_statement_begin__ = 21;
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> lambda_base_sq;
             (void) lambda_base_sq;  // dummy to suppress unused var warning
@@ -342,8 +352,8 @@ public:
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha, DUMMY_VAR__);
             current_statement_begin__ = 28;
-            local_scalar_t__ tau_sq;
-            (void) tau_sq;  // dummy to suppress unused var warning
+            validate_non_negative_index("tau_sq", "2", 2);
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> tau_sq(2);
             stan::math::initialize(tau_sq, DUMMY_VAR__);
             stan::math::fill(tau_sq, DUMMY_VAR__);
             current_statement_begin__ = 29;
@@ -358,7 +368,7 @@ public:
             stan::math::fill(normalized_alpha, DUMMY_VAR__);
             // transformed parameters block statements
             current_statement_begin__ = 31;
-            stan::math::assign(tau_sq, (tau_base_sq * tau_scale_sq));
+            stan::math::assign(tau_sq, elt_multiply(tau_base_sq, tau_scale_sq));
             current_statement_begin__ = 32;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
             current_statement_begin__ = 33;
@@ -366,13 +376,13 @@ public:
                 current_statement_begin__ = 34;
                 stan::model::assign(theta, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
+                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * get_base1(tau_sq, 1, "tau_sq", 1)) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
                             "assigning variable theta");
             }
             current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (get_base1(tau_sq, 2, "tau_sq", 1) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
@@ -430,10 +440,13 @@ public:
             }
             check_greater_or_equal(function__, "alpha", alpha, 0.0);
             current_statement_begin__ = 28;
-            if (stan::math::is_uninitialized(tau_sq)) {
-                std::stringstream msg__;
-                msg__ << "Undefined transformed parameter: tau_sq";
-                stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable tau_sq: ") + msg__.str()), current_statement_begin__, prog_reader__());
+            size_t tau_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < tau_sq_j_1_max__; ++j_1__) {
+                if (stan::math::is_uninitialized(tau_sq(j_1__))) {
+                    std::stringstream msg__;
+                    msg__ << "Undefined transformed parameter: tau_sq" << "(" << j_1__ << ")";
+                    stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable tau_sq: ") + msg__.str()), current_statement_begin__, prog_reader__());
+                }
             }
             check_greater_or_equal(function__, "tau_sq", tau_sq, 0.0);
             current_statement_begin__ = 29;
@@ -512,8 +525,10 @@ public:
         dims__.push_back((n_groups_stan + 1));
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(2);
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(2);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back((n_groups_stan + 1));
@@ -531,6 +546,7 @@ public:
         dims__.push_back((n_groups_stan + 1));
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(2);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back((n_groups_stan + 1));
@@ -558,10 +574,16 @@ public:
         for (size_t j_1__ = 0; j_1__ < alpha_raw_j_1_max__; ++j_1__) {
             vars__.push_back(alpha_raw(j_1__));
         }
-        double tau_base_sq = in__.scalar_lb_constrain(0.0);
-        vars__.push_back(tau_base_sq);
-        double tau_scale_sq = in__.scalar_lb_constrain(0.0);
-        vars__.push_back(tau_scale_sq);
+        Eigen::Matrix<double, Eigen::Dynamic, 1> tau_base_sq = in__.vector_lb_constrain(0.0, 2);
+        size_t tau_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_base_sq_j_1_max__; ++j_1__) {
+            vars__.push_back(tau_base_sq(j_1__));
+        }
+        Eigen::Matrix<double, Eigen::Dynamic, 1> tau_scale_sq = in__.vector_lb_constrain(0.0, 2);
+        size_t tau_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_scale_sq_j_1_max__; ++j_1__) {
+            vars__.push_back(tau_scale_sq(j_1__));
+        }
         Eigen::Matrix<double, Eigen::Dynamic, 1> lambda_base_sq = in__.vector_lb_constrain(0.0, (n_groups_stan + 1));
         size_t lambda_base_sq_j_1_max__ = (n_groups_stan + 1);
         for (size_t j_1__ = 0; j_1__ < lambda_base_sq_j_1_max__; ++j_1__) {
@@ -596,8 +618,8 @@ public:
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha, DUMMY_VAR__);
             current_statement_begin__ = 28;
-            double tau_sq;
-            (void) tau_sq;  // dummy to suppress unused var warning
+            validate_non_negative_index("tau_sq", "2", 2);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> tau_sq(2);
             stan::math::initialize(tau_sq, DUMMY_VAR__);
             stan::math::fill(tau_sq, DUMMY_VAR__);
             current_statement_begin__ = 29;
@@ -612,7 +634,7 @@ public:
             stan::math::fill(normalized_alpha, DUMMY_VAR__);
             // do transformed parameters statements
             current_statement_begin__ = 31;
-            stan::math::assign(tau_sq, (tau_base_sq * tau_scale_sq));
+            stan::math::assign(tau_sq, elt_multiply(tau_base_sq, tau_scale_sq));
             current_statement_begin__ = 32;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
             current_statement_begin__ = 33;
@@ -620,13 +642,13 @@ public:
                 current_statement_begin__ = 34;
                 stan::model::assign(theta, 
                             stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
-                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
+                            (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * get_base1(tau_sq, 1, "tau_sq", 1)) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
                             "assigning variable theta");
             }
             current_statement_begin__ = 36;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (get_base1(tau_sq, 2, "tau_sq", 1) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 37;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
@@ -681,7 +703,10 @@ public:
                 for (size_t j_1__ = 0; j_1__ < alpha_j_1_max__; ++j_1__) {
                     vars__.push_back(alpha(j_1__));
                 }
-                vars__.push_back(tau_sq);
+                size_t tau_sq_j_1_max__ = 2;
+                for (size_t j_1__ = 0; j_1__ < tau_sq_j_1_max__; ++j_1__) {
+                    vars__.push_back(tau_sq(j_1__));
+                }
                 size_t lambda_sq_j_1_max__ = (n_groups_stan + 1);
                 for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                     vars__.push_back(lambda_sq(j_1__));
@@ -728,12 +753,18 @@ public:
             param_name_stream__ << "alpha_raw" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "tau_base_sq";
-        param_names__.push_back(param_name_stream__.str());
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "tau_scale_sq";
-        param_names__.push_back(param_name_stream__.str());
+        size_t tau_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_base_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tau_base_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        size_t tau_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_scale_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tau_scale_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
         size_t lambda_base_sq_j_1_max__ = (n_groups_stan + 1);
         for (size_t j_1__ = 0; j_1__ < lambda_base_sq_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
@@ -766,9 +797,12 @@ public:
                 param_name_stream__ << "alpha" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "tau_sq";
-            param_names__.push_back(param_name_stream__.str());
+            size_t tau_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < tau_sq_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "tau_sq" << '.' << j_1__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
             size_t lambda_sq_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
@@ -794,12 +828,18 @@ public:
             param_name_stream__ << "alpha_raw" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "tau_base_sq";
-        param_names__.push_back(param_name_stream__.str());
-        param_name_stream__.str(std::string());
-        param_name_stream__ << "tau_scale_sq";
-        param_names__.push_back(param_name_stream__.str());
+        size_t tau_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_base_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tau_base_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        size_t tau_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < tau_scale_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "tau_scale_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
         size_t lambda_base_sq_j_1_max__ = (n_groups_stan + 1);
         for (size_t j_1__ = 0; j_1__ < lambda_base_sq_j_1_max__; ++j_1__) {
             param_name_stream__.str(std::string());
@@ -832,9 +872,12 @@ public:
                 param_name_stream__ << "alpha" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
-            param_name_stream__.str(std::string());
-            param_name_stream__ << "tau_sq";
-            param_names__.push_back(param_name_stream__.str());
+            size_t tau_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < tau_sq_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "tau_sq" << '.' << j_1__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
             size_t lambda_sq_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());

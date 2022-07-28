@@ -106,7 +106,8 @@ bayesian_isotonic = function(data_grouped = NULL,
               all(pull(data_grouped,y) <= pull(data_grouped,n)));
   stopifnot(conf_level >= 0 && conf_level <= 1);
   stopifnot(prior_type %in% c("horseshoe", "gamma",
-                              "horseshoe2", "gamma2"))
+                              "horseshoe2", "gamma2",
+                              "horseshoe3"))
 
   if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
     stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")

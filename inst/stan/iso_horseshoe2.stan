@@ -15,8 +15,8 @@ transformed data {
 parameters {
   vector<lower = 0.0>[n_groups_stan+1] alpha_raw;
   // tau is decomposed into chi-square and inverse-gamma portions
-  real<lower = 0.0> tau_base_sq;
-  real<lower = 0.0> tau_scale_sq;
+  vector<lower = 0.0>[n_groups_stan+1] tau_base_sq;
+  vector<lower = 0.0>[n_groups_stan+1] tau_scale_sq;
   // lambdas are decomposed into chi-square and inverse-gamma portions
   vector<lower = 0.0>[n_groups_stan+1] lambda_base_sq;//
   vector<lower = 0.0>[n_groups_stan+1] lambda_scale_sq;
@@ -25,14 +25,18 @@ transformed parameters {
   vector<lower = 0.0,upper = 1.0>[n_groups_stan] xi; //
   vector<lower = 0.0,upper = 1.0>[n_groups_stan+1] theta;
   vector<lower = 0.0>[n_groups_stan+1] alpha;
-  real<lower = 0.0> tau_sq;//tau^2
+  vector<lower = 0.0>[n_groups_stan+1] tau_sq;//tau^2
   vector<lower = 0.0>[n_groups_stan+1] lambda_sq;//lambda^2
   vector<lower = 0.0, upper = 1.0>[n_groups_stan+1] normalized_alpha;
-  tau_sq = tau_base_sq * tau_scale_sq;
+  tau_sq = tau_base_sq .* tau_scale_sq;
   lambda_sq = lambda_base_sq .* lambda_scale_sq;
-  for(i in 1:(n_groups_stan+1)) {
-    theta[i] = 1.0 / sqrt((1.0 / 225.0) + (1.0 / (alpha_scale_stan_sq * tau_sq * lambda_sq[i])));
+  theta[1] = 1.0 / sqrt(1.0 + (1.0 / (tau_sq[1] * lambda_sq[1])));
+  if(n_groups_stan > 1) {
+    for(i in 2:n_groups_stan) {
+      theta[i] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq[i] * lambda_sq[i])));
+    }
   }
+  theta[n_groups_stan+1] = 1.0 / sqrt(1.0 + (1.0 / (tau_sq[n_groups_stan+1] * lambda_sq[n_groups_stan+1])));
   alpha = (theta .* alpha_raw);
   normalized_alpha = alpha / sum(alpha);
   xi[1] = normalized_alpha[1];

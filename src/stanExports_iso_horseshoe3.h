@@ -364,7 +364,7 @@ public:
             current_statement_begin__ = 33;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 34;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
@@ -626,7 +626,7 @@ public:
             current_statement_begin__ = 33;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
                         "assigning variable theta");
             current_statement_begin__ = 34;
             if (as_bool(logical_gt(n_groups_stan, 1))) {

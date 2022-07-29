@@ -30,7 +30,7 @@ transformed parameters {
   vector<lower = 0.0, upper = 1.0>[n_groups_stan+1] normalized_alpha;
   tau_sq = tau_base_sq * tau_scale_sq;
   lambda_sq = lambda_base_sq .* lambda_scale_sq;
-  theta[1] = 1.0 / sqrt(1.0 + (1.0 / (tau_sq * lambda_sq[1])));
+  theta[1] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq * lambda_sq[1])));
   if(n_groups_stan > 1) {
     for(i in 2:n_groups_stan) {
       theta[i] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq * lambda_sq[i])));

@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_iso_horseshoe3");
-    reader.add_event(60, 58, "end", "model_iso_horseshoe3");
+    reader.add_event(67, 65, "end", "model_iso_horseshoe3");
     return reader;
 }
 #include <stan_meta_header.hpp>
@@ -171,6 +171,12 @@ public:
             current_statement_begin__ = 22;
             validate_non_negative_index("lambda_scale_sq", "(n_groups_stan + 1)", (n_groups_stan + 1));
             num_params_r__ += (n_groups_stan + 1);
+            current_statement_begin__ = 24;
+            validate_non_negative_index("gamma_base_sq", "2", 2);
+            num_params_r__ += 2;
+            current_statement_begin__ = 25;
+            validate_non_negative_index("gamma_scale_sq", "2", 2);
+            num_params_r__ += 2;
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(e, current_statement_begin__, prog_reader__());
             // Next line prevents compiler griping about no return
@@ -265,6 +271,40 @@ public:
         } catch (const std::exception& e) {
             stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable lambda_scale_sq: ") + e.what()), current_statement_begin__, prog_reader__());
         }
+        current_statement_begin__ = 24;
+        if (!(context__.contains_r("gamma_base_sq")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable gamma_base_sq missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("gamma_base_sq");
+        pos__ = 0U;
+        validate_non_negative_index("gamma_base_sq", "2", 2);
+        context__.validate_dims("parameter initialization", "gamma_base_sq", "vector_d", context__.to_vec(2));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> gamma_base_sq(2);
+        size_t gamma_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_base_sq_j_1_max__; ++j_1__) {
+            gamma_base_sq(j_1__) = vals_r__[pos__++];
+        }
+        try {
+            writer__.vector_lb_unconstrain(0.0, gamma_base_sq);
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable gamma_base_sq: ") + e.what()), current_statement_begin__, prog_reader__());
+        }
+        current_statement_begin__ = 25;
+        if (!(context__.contains_r("gamma_scale_sq")))
+            stan::lang::rethrow_located(std::runtime_error(std::string("Variable gamma_scale_sq missing")), current_statement_begin__, prog_reader__());
+        vals_r__ = context__.vals_r("gamma_scale_sq");
+        pos__ = 0U;
+        validate_non_negative_index("gamma_scale_sq", "2", 2);
+        context__.validate_dims("parameter initialization", "gamma_scale_sq", "vector_d", context__.to_vec(2));
+        Eigen::Matrix<double, Eigen::Dynamic, 1> gamma_scale_sq(2);
+        size_t gamma_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_scale_sq_j_1_max__; ++j_1__) {
+            gamma_scale_sq(j_1__) = vals_r__[pos__++];
+        }
+        try {
+            writer__.vector_lb_unconstrain(0.0, gamma_scale_sq);
+        } catch (const std::exception& e) {
+            stan::lang::rethrow_located(std::runtime_error(std::string("Error transforming variable gamma_scale_sq: ") + e.what()), current_statement_begin__, prog_reader__());
+        }
         params_r__ = writer__.data_r();
         params_i__ = writer__.data_i();
     }
@@ -325,77 +365,98 @@ public:
                 lambda_scale_sq = in__.vector_lb_constrain(0.0, (n_groups_stan + 1), lp__);
             else
                 lambda_scale_sq = in__.vector_lb_constrain(0.0, (n_groups_stan + 1));
-            // transformed parameters
+            current_statement_begin__ = 24;
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> gamma_base_sq;
+            (void) gamma_base_sq;  // dummy to suppress unused var warning
+            if (jacobian__)
+                gamma_base_sq = in__.vector_lb_constrain(0.0, 2, lp__);
+            else
+                gamma_base_sq = in__.vector_lb_constrain(0.0, 2);
             current_statement_begin__ = 25;
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> gamma_scale_sq;
+            (void) gamma_scale_sq;  // dummy to suppress unused var warning
+            if (jacobian__)
+                gamma_scale_sq = in__.vector_lb_constrain(0.0, 2, lp__);
+            else
+                gamma_scale_sq = in__.vector_lb_constrain(0.0, 2);
+            // transformed parameters
+            current_statement_begin__ = 28;
             validate_non_negative_index("xi", "n_groups_stan", n_groups_stan);
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> xi(n_groups_stan);
             stan::math::initialize(xi, DUMMY_VAR__);
             stan::math::fill(xi, DUMMY_VAR__);
-            current_statement_begin__ = 26;
+            current_statement_begin__ = 29;
             validate_non_negative_index("theta", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> theta((n_groups_stan + 1));
             stan::math::initialize(theta, DUMMY_VAR__);
             stan::math::fill(theta, DUMMY_VAR__);
-            current_statement_begin__ = 27;
+            current_statement_begin__ = 30;
             validate_non_negative_index("alpha", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> alpha((n_groups_stan + 1));
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha, DUMMY_VAR__);
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 31;
             local_scalar_t__ tau_sq;
             (void) tau_sq;  // dummy to suppress unused var warning
             stan::math::initialize(tau_sq, DUMMY_VAR__);
             stan::math::fill(tau_sq, DUMMY_VAR__);
-            current_statement_begin__ = 29;
+            current_statement_begin__ = 32;
             validate_non_negative_index("lambda_sq", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> lambda_sq((n_groups_stan + 1));
             stan::math::initialize(lambda_sq, DUMMY_VAR__);
             stan::math::fill(lambda_sq, DUMMY_VAR__);
-            current_statement_begin__ = 30;
+            current_statement_begin__ = 33;
+            validate_non_negative_index("gamma_sq", "2", 2);
+            Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> gamma_sq(2);
+            stan::math::initialize(gamma_sq, DUMMY_VAR__);
+            stan::math::fill(gamma_sq, DUMMY_VAR__);
+            current_statement_begin__ = 34;
             validate_non_negative_index("normalized_alpha", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<local_scalar_t__, Eigen::Dynamic, 1> normalized_alpha((n_groups_stan + 1));
             stan::math::initialize(normalized_alpha, DUMMY_VAR__);
             stan::math::fill(normalized_alpha, DUMMY_VAR__);
             // transformed parameters block statements
-            current_statement_begin__ = 31;
+            current_statement_begin__ = 35;
             stan::math::assign(tau_sq, (tau_base_sq * tau_scale_sq));
-            current_statement_begin__ = 32;
+            current_statement_begin__ = 36;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
-            current_statement_begin__ = 33;
+            current_statement_begin__ = 37;
+            stan::math::assign(gamma_sq, elt_multiply(gamma_base_sq, gamma_scale_sq));
+            current_statement_begin__ = 38;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((get_base1(gamma_sq, 1, "gamma_sq", 1) * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 34;
+            current_statement_begin__ = 39;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 35;
+                current_statement_begin__ = 40;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 36;
+                    current_statement_begin__ = 41;
                     stan::model::assign(theta, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
                                 "assigning variable theta");
                 }
             }
-            current_statement_begin__ = 39;
+            current_statement_begin__ = 44;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((get_base1(gamma_sq, 2, "gamma_sq", 1) * tau_sq) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 40;
+            current_statement_begin__ = 45;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
-            current_statement_begin__ = 41;
+            current_statement_begin__ = 46;
             stan::math::assign(normalized_alpha, divide(alpha, sum(alpha)));
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 47;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                         get_base1(normalized_alpha, 1, "normalized_alpha", 1), 
                         "assigning variable xi");
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 48;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 44;
+                current_statement_begin__ = 49;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 45;
+                    current_statement_begin__ = 50;
                     stan::model::assign(xi, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (get_base1(xi, (i - 1), "xi", 1) + get_base1(normalized_alpha, i, "normalized_alpha", 1)), 
@@ -405,7 +466,7 @@ public:
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 25;
+            current_statement_begin__ = 28;
             size_t xi_j_1_max__ = n_groups_stan;
             for (size_t j_1__ = 0; j_1__ < xi_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(xi(j_1__))) {
@@ -416,7 +477,7 @@ public:
             }
             check_greater_or_equal(function__, "xi", xi, 0.0);
             check_less_or_equal(function__, "xi", xi, 1.0);
-            current_statement_begin__ = 26;
+            current_statement_begin__ = 29;
             size_t theta_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < theta_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(theta(j_1__))) {
@@ -427,7 +488,7 @@ public:
             }
             check_greater_or_equal(function__, "theta", theta, 0.0);
             check_less_or_equal(function__, "theta", theta, 1.0);
-            current_statement_begin__ = 27;
+            current_statement_begin__ = 30;
             size_t alpha_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < alpha_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(alpha(j_1__))) {
@@ -437,14 +498,14 @@ public:
                 }
             }
             check_greater_or_equal(function__, "alpha", alpha, 0.0);
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 31;
             if (stan::math::is_uninitialized(tau_sq)) {
                 std::stringstream msg__;
                 msg__ << "Undefined transformed parameter: tau_sq";
                 stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable tau_sq: ") + msg__.str()), current_statement_begin__, prog_reader__());
             }
             check_greater_or_equal(function__, "tau_sq", tau_sq, 0.0);
-            current_statement_begin__ = 29;
+            current_statement_begin__ = 32;
             size_t lambda_sq_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(lambda_sq(j_1__))) {
@@ -454,7 +515,17 @@ public:
                 }
             }
             check_greater_or_equal(function__, "lambda_sq", lambda_sq, 0.0);
-            current_statement_begin__ = 30;
+            current_statement_begin__ = 33;
+            size_t gamma_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < gamma_sq_j_1_max__; ++j_1__) {
+                if (stan::math::is_uninitialized(gamma_sq(j_1__))) {
+                    std::stringstream msg__;
+                    msg__ << "Undefined transformed parameter: gamma_sq" << "(" << j_1__ << ")";
+                    stan::lang::rethrow_located(std::runtime_error(std::string("Error initializing variable gamma_sq: ") + msg__.str()), current_statement_begin__, prog_reader__());
+                }
+            }
+            check_greater_or_equal(function__, "gamma_sq", gamma_sq, 0.0);
+            current_statement_begin__ = 34;
             size_t normalized_alpha_j_1_max__ = (n_groups_stan + 1);
             for (size_t j_1__ = 0; j_1__ < normalized_alpha_j_1_max__; ++j_1__) {
                 if (stan::math::is_uninitialized(normalized_alpha(j_1__))) {
@@ -466,19 +537,23 @@ public:
             check_greater_or_equal(function__, "normalized_alpha", normalized_alpha, 0.0);
             check_less_or_equal(function__, "normalized_alpha", normalized_alpha, 1.0);
             // model body
-            current_statement_begin__ = 50;
-            lp_accum__.add(normal_log<propto__>(alpha_raw, 0.0, 1.0));
-            current_statement_begin__ = 51;
-            lp_accum__.add(chi_square_log<propto__>(tau_base_sq, 1.0));
-            current_statement_begin__ = 52;
-            lp_accum__.add(inv_gamma_log<propto__>(tau_scale_sq, (global_dof_stan / 2.0), (global_dof_stan / 2.0)));
-            current_statement_begin__ = 53;
-            lp_accum__.add(chi_square_log<propto__>(lambda_base_sq, 1.0));
-            current_statement_begin__ = 54;
-            lp_accum__.add(inv_gamma_log<propto__>(lambda_scale_sq, (local_dof_stan / 2.0), (local_dof_stan / 2.0)));
             current_statement_begin__ = 55;
+            lp_accum__.add(normal_log<propto__>(alpha_raw, 0.0, 1.0));
+            current_statement_begin__ = 56;
+            lp_accum__.add(chi_square_log<propto__>(tau_base_sq, 1.0));
+            current_statement_begin__ = 57;
+            lp_accum__.add(inv_gamma_log<propto__>(tau_scale_sq, (global_dof_stan / 2.0), (global_dof_stan / 2.0)));
+            current_statement_begin__ = 58;
+            lp_accum__.add(chi_square_log<propto__>(lambda_base_sq, 1.0));
+            current_statement_begin__ = 59;
+            lp_accum__.add(inv_gamma_log<propto__>(lambda_scale_sq, (local_dof_stan / 2.0), (local_dof_stan / 2.0)));
+            current_statement_begin__ = 60;
+            lp_accum__.add(chi_square_log<propto__>(gamma_base_sq, 1.0));
+            current_statement_begin__ = 61;
+            lp_accum__.add(inv_gamma_log<propto__>(gamma_scale_sq, (local_dof_stan / 2.0), (local_dof_stan / 2.0)));
+            current_statement_begin__ = 62;
             if (as_bool(logical_eq(only_prior_stan, 0))) {
-                current_statement_begin__ = 56;
+                current_statement_begin__ = 63;
                 lp_accum__.add(binomial_log<propto__>(y_stan, n_per_group_stan, xi));
             }
         } catch (const std::exception& e) {
@@ -506,11 +581,14 @@ public:
         names__.push_back("tau_scale_sq");
         names__.push_back("lambda_base_sq");
         names__.push_back("lambda_scale_sq");
+        names__.push_back("gamma_base_sq");
+        names__.push_back("gamma_scale_sq");
         names__.push_back("xi");
         names__.push_back("theta");
         names__.push_back("alpha");
         names__.push_back("tau_sq");
         names__.push_back("lambda_sq");
+        names__.push_back("gamma_sq");
         names__.push_back("normalized_alpha");
     }
     void get_dims(std::vector<std::vector<size_t> >& dimss__) const {
@@ -530,6 +608,12 @@ public:
         dims__.push_back((n_groups_stan + 1));
         dimss__.push_back(dims__);
         dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(2);
+        dimss__.push_back(dims__);
+        dims__.resize(0);
         dims__.push_back(n_groups_stan);
         dimss__.push_back(dims__);
         dims__.resize(0);
@@ -542,6 +626,9 @@ public:
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back((n_groups_stan + 1));
+        dimss__.push_back(dims__);
+        dims__.resize(0);
+        dims__.push_back(2);
         dimss__.push_back(dims__);
         dims__.resize(0);
         dims__.push_back((n_groups_stan + 1));
@@ -580,6 +667,16 @@ public:
         for (size_t j_1__ = 0; j_1__ < lambda_scale_sq_j_1_max__; ++j_1__) {
             vars__.push_back(lambda_scale_sq(j_1__));
         }
+        Eigen::Matrix<double, Eigen::Dynamic, 1> gamma_base_sq = in__.vector_lb_constrain(0.0, 2);
+        size_t gamma_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_base_sq_j_1_max__; ++j_1__) {
+            vars__.push_back(gamma_base_sq(j_1__));
+        }
+        Eigen::Matrix<double, Eigen::Dynamic, 1> gamma_scale_sq = in__.vector_lb_constrain(0.0, 2);
+        size_t gamma_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_scale_sq_j_1_max__; ++j_1__) {
+            vars__.push_back(gamma_scale_sq(j_1__));
+        }
         double lp__ = 0.0;
         (void) lp__;  // dummy to suppress unused var warning
         stan::math::accumulator<double> lp_accum__;
@@ -588,76 +685,83 @@ public:
         if (!include_tparams__ && !include_gqs__) return;
         try {
             // declare and define transformed parameters
-            current_statement_begin__ = 25;
+            current_statement_begin__ = 28;
             validate_non_negative_index("xi", "n_groups_stan", n_groups_stan);
             Eigen::Matrix<double, Eigen::Dynamic, 1> xi(n_groups_stan);
             stan::math::initialize(xi, DUMMY_VAR__);
             stan::math::fill(xi, DUMMY_VAR__);
-            current_statement_begin__ = 26;
+            current_statement_begin__ = 29;
             validate_non_negative_index("theta", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<double, Eigen::Dynamic, 1> theta((n_groups_stan + 1));
             stan::math::initialize(theta, DUMMY_VAR__);
             stan::math::fill(theta, DUMMY_VAR__);
-            current_statement_begin__ = 27;
+            current_statement_begin__ = 30;
             validate_non_negative_index("alpha", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<double, Eigen::Dynamic, 1> alpha((n_groups_stan + 1));
             stan::math::initialize(alpha, DUMMY_VAR__);
             stan::math::fill(alpha, DUMMY_VAR__);
-            current_statement_begin__ = 28;
+            current_statement_begin__ = 31;
             double tau_sq;
             (void) tau_sq;  // dummy to suppress unused var warning
             stan::math::initialize(tau_sq, DUMMY_VAR__);
             stan::math::fill(tau_sq, DUMMY_VAR__);
-            current_statement_begin__ = 29;
+            current_statement_begin__ = 32;
             validate_non_negative_index("lambda_sq", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<double, Eigen::Dynamic, 1> lambda_sq((n_groups_stan + 1));
             stan::math::initialize(lambda_sq, DUMMY_VAR__);
             stan::math::fill(lambda_sq, DUMMY_VAR__);
-            current_statement_begin__ = 30;
+            current_statement_begin__ = 33;
+            validate_non_negative_index("gamma_sq", "2", 2);
+            Eigen::Matrix<double, Eigen::Dynamic, 1> gamma_sq(2);
+            stan::math::initialize(gamma_sq, DUMMY_VAR__);
+            stan::math::fill(gamma_sq, DUMMY_VAR__);
+            current_statement_begin__ = 34;
             validate_non_negative_index("normalized_alpha", "(n_groups_stan + 1)", (n_groups_stan + 1));
             Eigen::Matrix<double, Eigen::Dynamic, 1> normalized_alpha((n_groups_stan + 1));
             stan::math::initialize(normalized_alpha, DUMMY_VAR__);
             stan::math::fill(normalized_alpha, DUMMY_VAR__);
             // do transformed parameters statements
-            current_statement_begin__ = 31;
+            current_statement_begin__ = 35;
             stan::math::assign(tau_sq, (tau_base_sq * tau_scale_sq));
-            current_statement_begin__ = 32;
+            current_statement_begin__ = 36;
             stan::math::assign(lambda_sq, elt_multiply(lambda_base_sq, lambda_scale_sq));
-            current_statement_begin__ = 33;
+            current_statement_begin__ = 37;
+            stan::math::assign(gamma_sq, elt_multiply(gamma_base_sq, gamma_scale_sq));
+            current_statement_begin__ = 38;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((get_base1(gamma_sq, 1, "gamma_sq", 1) * tau_sq) * get_base1(lambda_sq, 1, "lambda_sq", 1)))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 34;
+            current_statement_begin__ = 39;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 35;
+                current_statement_begin__ = 40;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 36;
+                    current_statement_begin__ = 41;
                     stan::model::assign(theta, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (1.0 / stan::math::sqrt((1.0 + (1.0 / ((alpha_scale_stan_sq * tau_sq) * get_base1(lambda_sq, i, "lambda_sq", 1)))))), 
                                 "assigning variable theta");
                 }
             }
-            current_statement_begin__ = 39;
+            current_statement_begin__ = 44;
             stan::model::assign(theta, 
                         stan::model::cons_list(stan::model::index_uni((n_groups_stan + 1)), stan::model::nil_index_list()), 
-                        (1.0 / stan::math::sqrt((1.0 + (1.0 / (tau_sq * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
+                        (1.0 / stan::math::sqrt((1.0 + (1.0 / ((get_base1(gamma_sq, 2, "gamma_sq", 1) * tau_sq) * get_base1(lambda_sq, (n_groups_stan + 1), "lambda_sq", 1)))))), 
                         "assigning variable theta");
-            current_statement_begin__ = 40;
+            current_statement_begin__ = 45;
             stan::math::assign(alpha, elt_multiply(theta, alpha_raw));
-            current_statement_begin__ = 41;
+            current_statement_begin__ = 46;
             stan::math::assign(normalized_alpha, divide(alpha, sum(alpha)));
-            current_statement_begin__ = 42;
+            current_statement_begin__ = 47;
             stan::model::assign(xi, 
                         stan::model::cons_list(stan::model::index_uni(1), stan::model::nil_index_list()), 
                         get_base1(normalized_alpha, 1, "normalized_alpha", 1), 
                         "assigning variable xi");
-            current_statement_begin__ = 43;
+            current_statement_begin__ = 48;
             if (as_bool(logical_gt(n_groups_stan, 1))) {
-                current_statement_begin__ = 44;
+                current_statement_begin__ = 49;
                 for (int i = 2; i <= n_groups_stan; ++i) {
-                    current_statement_begin__ = 45;
+                    current_statement_begin__ = 50;
                     stan::model::assign(xi, 
                                 stan::model::cons_list(stan::model::index_uni(i), stan::model::nil_index_list()), 
                                 (get_base1(xi, (i - 1), "xi", 1) + get_base1(normalized_alpha, i, "normalized_alpha", 1)), 
@@ -668,19 +772,21 @@ public:
             // validate transformed parameters
             const char* function__ = "validate transformed params";
             (void) function__;  // dummy to suppress unused var warning
-            current_statement_begin__ = 25;
+            current_statement_begin__ = 28;
             check_greater_or_equal(function__, "xi", xi, 0.0);
             check_less_or_equal(function__, "xi", xi, 1.0);
-            current_statement_begin__ = 26;
+            current_statement_begin__ = 29;
             check_greater_or_equal(function__, "theta", theta, 0.0);
             check_less_or_equal(function__, "theta", theta, 1.0);
-            current_statement_begin__ = 27;
-            check_greater_or_equal(function__, "alpha", alpha, 0.0);
-            current_statement_begin__ = 28;
-            check_greater_or_equal(function__, "tau_sq", tau_sq, 0.0);
-            current_statement_begin__ = 29;
-            check_greater_or_equal(function__, "lambda_sq", lambda_sq, 0.0);
             current_statement_begin__ = 30;
+            check_greater_or_equal(function__, "alpha", alpha, 0.0);
+            current_statement_begin__ = 31;
+            check_greater_or_equal(function__, "tau_sq", tau_sq, 0.0);
+            current_statement_begin__ = 32;
+            check_greater_or_equal(function__, "lambda_sq", lambda_sq, 0.0);
+            current_statement_begin__ = 33;
+            check_greater_or_equal(function__, "gamma_sq", gamma_sq, 0.0);
+            current_statement_begin__ = 34;
             check_greater_or_equal(function__, "normalized_alpha", normalized_alpha, 0.0);
             check_less_or_equal(function__, "normalized_alpha", normalized_alpha, 1.0);
             // write transformed parameters
@@ -701,6 +807,10 @@ public:
                 size_t lambda_sq_j_1_max__ = (n_groups_stan + 1);
                 for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                     vars__.push_back(lambda_sq(j_1__));
+                }
+                size_t gamma_sq_j_1_max__ = 2;
+                for (size_t j_1__ = 0; j_1__ < gamma_sq_j_1_max__; ++j_1__) {
+                    vars__.push_back(gamma_sq(j_1__));
                 }
                 size_t normalized_alpha_j_1_max__ = (n_groups_stan + 1);
                 for (size_t j_1__ = 0; j_1__ < normalized_alpha_j_1_max__; ++j_1__) {
@@ -762,6 +872,18 @@ public:
             param_name_stream__ << "lambda_scale_sq" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
+        size_t gamma_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_base_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "gamma_base_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        size_t gamma_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_scale_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "gamma_scale_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
             size_t xi_j_1_max__ = n_groups_stan;
@@ -789,6 +911,12 @@ public:
             for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "lambda_sq" << '.' << j_1__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+            size_t gamma_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < gamma_sq_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "gamma_sq" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
             size_t normalized_alpha_j_1_max__ = (n_groups_stan + 1);
@@ -828,6 +956,18 @@ public:
             param_name_stream__ << "lambda_scale_sq" << '.' << j_1__ + 1;
             param_names__.push_back(param_name_stream__.str());
         }
+        size_t gamma_base_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_base_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "gamma_base_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
+        size_t gamma_scale_sq_j_1_max__ = 2;
+        for (size_t j_1__ = 0; j_1__ < gamma_scale_sq_j_1_max__; ++j_1__) {
+            param_name_stream__.str(std::string());
+            param_name_stream__ << "gamma_scale_sq" << '.' << j_1__ + 1;
+            param_names__.push_back(param_name_stream__.str());
+        }
         if (!include_gqs__ && !include_tparams__) return;
         if (include_tparams__) {
             size_t xi_j_1_max__ = n_groups_stan;
@@ -855,6 +995,12 @@ public:
             for (size_t j_1__ = 0; j_1__ < lambda_sq_j_1_max__; ++j_1__) {
                 param_name_stream__.str(std::string());
                 param_name_stream__ << "lambda_sq" << '.' << j_1__ + 1;
+                param_names__.push_back(param_name_stream__.str());
+            }
+            size_t gamma_sq_j_1_max__ = 2;
+            for (size_t j_1__ = 0; j_1__ < gamma_sq_j_1_max__; ++j_1__) {
+                param_name_stream__.str(std::string());
+                param_name_stream__ << "gamma_sq" << '.' << j_1__ + 1;
                 param_names__.push_back(param_name_stream__.str());
             }
             size_t normalized_alpha_j_1_max__ = (n_groups_stan + 1);

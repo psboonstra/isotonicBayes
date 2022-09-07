@@ -52,3 +52,4 @@ model {
     y_stan ~ binomial(n_per_group_stan, xi);
   }
 }
+//

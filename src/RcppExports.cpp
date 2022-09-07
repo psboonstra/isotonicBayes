@@ -16,14 +16,12 @@ RcppExport SEXP _rcpp_module_boot_stan_fit4iso_gamma_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4iso_horseshoe_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4iso_horseshoe2_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4iso_horseshoe3_mod();
-RcppExport SEXP _rcpp_module_boot_stan_fit4iso_horseshoe4_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4iso_gamma_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4iso_gamma_mod, 0},
     {"_rcpp_module_boot_stan_fit4iso_horseshoe_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4iso_horseshoe_mod, 0},
     {"_rcpp_module_boot_stan_fit4iso_horseshoe2_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4iso_horseshoe2_mod, 0},
     {"_rcpp_module_boot_stan_fit4iso_horseshoe3_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4iso_horseshoe3_mod, 0},
-    {"_rcpp_module_boot_stan_fit4iso_horseshoe4_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4iso_horseshoe4_mod, 0},
     {NULL, NULL, 0}
 };
 

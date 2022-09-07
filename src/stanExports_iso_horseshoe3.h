@@ -33,7 +33,7 @@ static int current_statement_begin__;
 stan::io::program_reader prog_reader__() {
     stan::io::program_reader reader;
     reader.add_event(0, 0, "start", "model_iso_horseshoe3");
-    reader.add_event(67, 65, "end", "model_iso_horseshoe3");
+    reader.add_event(68, 66, "end", "model_iso_horseshoe3");
     return reader;
 }
 #include <stan_meta_header.hpp>

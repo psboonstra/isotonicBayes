@@ -1,6 +1,6 @@
 #' solve_for_hs_propeff
 #'
-#' @param target_scale a positive number corresponding to the scale parameter
+#' @param scale a positive number corresponding to the scale parameter
 #'
 #' @param local_dof a positive number giving the degrees of freedom for the
 #' t-distribution of the local shrinkage parameter.
@@ -28,6 +28,8 @@
 #' @param n_sim a positive integer giving the number of random draws from the
 #' t-distributions with which to estimate expectations
 #'
+#' @param seed a positive integer giving the random seed, provided for reproducibility.
+#'
 #' @references
 #'
 #' \insertRef{boonstra2020b}{isotonicBayes}
@@ -40,7 +42,7 @@
 #'
 #' @export
 #'
-#' @importFrom stats rt rnorm
+#' @importFrom stats rt rnorm var
 #' @importFrom Rdpack reprompt
 #'
 
@@ -54,9 +56,13 @@ solve_for_hs_propeff = function(scale,
                                 sigma = 2,
                                 tol = .Machine$double.eps,
                                 max_iter = 100,
-                                n_sim = 1e6
+                                n_sim = 1e6,
+                                seed = sample(.Machine$integer.max, 1)
 ) {
-
+  set.seed(1);
+  stopifnot(slab_precision >= 0 && n > 0 && sigma > 0);#Ensure proper bounds
+  stopifnot(local_dof >= 0 && global_dof >= 0);#Ensure proper bounds
+  stopifnot(scale > 0);#Ensure proper bounds
   do_local = (local_dof > 0);
   do_global = (global_dof > 0);
   if(do_local) {
@@ -67,7 +73,6 @@ solve_for_hs_propeff = function(scale,
   if(do_global) {
     lambda = lambda * rt(n_sim,df = global_dof);
   }
-  stopifnot(scale > 0);#Ensure proper bounds
   prior_scales_sq = 1 / (slab_precision + 1 / (scale^2 * lambda^2));
   kappa = 1 / (1 + n * prior_scales_sq / sigma^2);
 

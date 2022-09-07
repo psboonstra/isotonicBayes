@@ -10,6 +10,7 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+rlang::is_installed("knitr")
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -26,7 +27,7 @@ options(digits = 3)
 # Introduction
 
 This vignette presents a step-by-step approach for using the `R` 
-function `bayesian_isotonic()`, located in the project script `functions.R`. 
+function `bayesian_isotonic()`. 
 
 We create a simple dataset with a binary outcome $Y$ and a continuous
 predictor $X$ where $\Pr(Y=1|X)$ is definitely not logistic shaped. We 

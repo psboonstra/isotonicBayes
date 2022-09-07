@@ -13,10 +13,13 @@ solve_for_hs_propeff(
   sigma = 2,
   tol = .Machine$double.eps,
   max_iter = 100,
-  n_sim = 1e+06
+  n_sim = 1e+06,
+  seed = sample(.Machine$integer.max, 1)
 )
 }
 \arguments{
+\item{scale}{a positive number corresponding to the scale parameter}
+
 \item{local_dof}{a positive number giving the degrees of freedom for the
 t-distribution of the local shrinkage parameter.
 local_dof = global_dof = 1 corresponds to the horseshoe}
@@ -43,7 +46,7 @@ to proceed without convergence before giving up}
 \item{n_sim}{a positive integer giving the number of random draws from the
 t-distributions with which to estimate expectations}
 
-\item{target_scale}{a positive number corresponding to the scale parameter}
+\item{seed}{a positive integer giving the random seed, provided for reproducibility.}
 }
 \description{
 solve_for_hs_propeff

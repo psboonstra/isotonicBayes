@@ -59,7 +59,7 @@
 #' of class `stanfit`? Defaults to `FALSE`
 #'
 #'
-#' @param stan_seed A positive integer to seed
+#' @param stan_seed A positive integer to seed the STAN sampler, for reproducibility
 #'
 #' @references
 #' \insertRef{boonstra2020b}{isotonicBayes}

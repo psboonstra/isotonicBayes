@@ -13,7 +13,8 @@ solve_for_hs_scale(
   sigma = 2,
   tol = .Machine$double.eps,
   max_iter = 100,
-  n_sim = 1e+06
+  n_sim = 1e+06,
+  seed = sample(.Machine$integer.max, 1)
 )
 }
 \arguments{
@@ -45,6 +46,8 @@ to proceed without convergence before giving up}
 
 \item{n_sim}{a positive integer giving the number of random draws from the
 t-distributions with which to estimate expectations}
+
+\item{seed}{a positive integer giving the random seed, provided for reproducibility.}
 }
 \description{
 solve_for_hs_scale

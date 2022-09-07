@@ -29,6 +29,8 @@
 #' @param n_sim a positive integer giving the number of random draws from the
 #' t-distributions with which to estimate expectations
 #'
+#' @param seed a positive integer giving the random seed, provided for reproducibility.
+#'
 #' @references
 #'
 #' \insertRef{boonstra2020b}{isotonicBayes}
@@ -55,9 +57,12 @@ solve_for_hs_scale = function(target_mean,
                               sigma = 2,
                               tol = .Machine$double.eps,
                               max_iter = 100,
-                              n_sim = 1e6
+                              n_sim = 1e6,
+                              seed = sample(.Machine$integer.max, 1)
 ) {
-
+  set.seed(1);
+  stopifnot(slab_precision >= 0 && n > 0 && sigma > 0);#Ensure proper bounds
+  stopifnot(local_dof >= 0 && global_dof >= 0);#Ensure proper bounds
   do_local = (local_dof > 0);
   do_global = (global_dof > 0);
   if(do_local) {
@@ -69,7 +74,12 @@ solve_for_hs_scale = function(target_mean,
     lambda = lambda * rt(n_sim,df = global_dof);
   }
   lambda_sq = lambda^2;
-  stopifnot(target_mean > 0 && target_mean < 1);#Ensure proper bounds
+  if(target_mean <= 0 ||
+     target_mean >= (1 - 1 / (1 + n / sigma^2 / slab_precision))) {
+    stop(paste0("'target_mean' must be a positive number but no larger than
+         the value of (1 - 1 / (1 + n / sigma^2 / slab_precision)), or ",
+                round((1 - 1 / (1 + n / sigma^2 / slab_precision)), 3)))
+  }
   log_scale = diff_target = numeric(max_iter);
   log_scale[1] = log(target_mean / (1 - target_mean) * sigma / sqrt(n));
   prior_scales_sq = 1 / (slab_precision + 1 / (exp(2 * log_scale[1]) * lambda_sq));

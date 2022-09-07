@@ -81,7 +81,7 @@ of all parameters}
 \item{return_as_stan_object}{a logical. Should the function return an object
 of class \code{stanfit}? Defaults to \code{FALSE}}
 
-\item{stan_seed}{A positive integer to seed}
+\item{stan_seed}{A positive integer to seed the STAN sampler, for reproducibility}
 }
 \description{
 bayesian_isotonic

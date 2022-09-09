@@ -1,7 +1,12 @@
-#' solve_for_hs_scale
+#' @title Solve for scale parameter c
 #'
-#' @param target_mean a number in 0,1 giving the desired proportion of non-zero
-#' parameters
+#' @description Takes as input a proportion, interpreted as m_eff / (K - 1), where
+#' m_eff is defined in Equation (2.9) and K is the number of categories, and returns
+#' a scale parameter, c, that solves Equation (2.9).
+#'
+#' @param target_mean a number in 0,1 giving the desired **proportion** of non-zero
+#' parameters (if you multiply target_mean by the number of categories beyond
+#' the first, this would be the desired **number** of non-zero parameters)
 #'
 #' @param local_dof a positive number giving the degrees of freedom for the
 #' t-distribution of the local shrinkage parameter.

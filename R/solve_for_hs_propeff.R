@@ -1,4 +1,8 @@
-#' solve_for_hs_propeff
+#' @title Solve for m_eff / (K - 1)
+#'
+#' @description Takes as input a scale parameter, interpreted as c from in Equation (2.9),
+#' and returns m_eff / (K - 1),  where m_eff is also defined in Equation (2.9) and K is
+#' the number of categories.
 #'
 #' @param scale a positive number corresponding to the scale parameter
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/solve_for_hs_scale.R
 \name{solve_for_hs_scale}
 \alias{solve_for_hs_scale}
-\title{solve_for_hs_scale}
+\title{Solve for scale parameter c}
 \usage{
 solve_for_hs_scale(
   target_mean,
@@ -18,8 +18,9 @@ solve_for_hs_scale(
 )
 }
 \arguments{
-\item{target_mean}{a number in 0,1 giving the desired proportion of non-zero
-parameters}
+\item{target_mean}{a number in 0,1 giving the desired \strong{proportion} of non-zero
+parameters (if you multiply target_mean by the number of categories beyond
+the first, this would be the desired \strong{number} of non-zero parameters)}
 
 \item{local_dof}{a positive number giving the degrees of freedom for the
 t-distribution of the local shrinkage parameter.
@@ -50,7 +51,9 @@ t-distributions with which to estimate expectations}
 \item{seed}{a positive integer giving the random seed, provided for reproducibility.}
 }
 \description{
-solve_for_hs_scale
+Takes as input a proportion, interpreted as m_eff / (K - 1), where
+m_eff is defined in Equation (2.9) and K is the number of categories, and returns
+a scale parameter, c, that solves Equation (2.9).
 }
 \examples{
 solve_for_hs_scale(target_mean = 0.1, n = 100, n_sim = 1e5)

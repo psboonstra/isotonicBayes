@@ -1,6 +1,7 @@
 #' @title Bayesian isotonic regression
 #'
-#' @description  bayesian_isotonic
+#' @description  This function applies the isotonic probability vectors considered
+#' in Boonstra, Owen, and Kang.
 #'
 #' @param data_grouped a tibble or data.frame with named columns y and n indicating,
 #' respectively, the number of events and number of bernoulli trials. Each
@@ -84,7 +85,8 @@ bayesian_isotonic = function(data_grouped = NULL,
                              stan_args = list(
                                local_dof_stan = 1,
                                global_dof_stan = 1,
-                               alpha_scale_stan = 1),
+                               alpha_scale_stan = 1,
+                               slab_precision_stan = 1),
                              sample_from_prior_only = FALSE,
                              conf_level = 0.50,
                              conf_level_direction = "both",
@@ -107,7 +109,8 @@ bayesian_isotonic = function(data_grouped = NULL,
   stopifnot(conf_level >= 0 && conf_level <= 1);
   stopifnot(prior_type %in% c("horseshoe", "gamma",
                               "horseshoe2", "gamma2",
-                              "horseshoe3"))
+                              "horseshoe3",
+                              "horseshoe4"))
 
   if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
     stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")

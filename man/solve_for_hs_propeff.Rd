@@ -2,7 +2,7 @@
 % Please edit documentation in R/solve_for_hs_propeff.R
 \name{solve_for_hs_propeff}
 \alias{solve_for_hs_propeff}
-\title{solve_for_hs_propeff}
+\title{Solve for m_eff / (K - 1)}
 \usage{
 solve_for_hs_propeff(
   scale,
@@ -49,7 +49,9 @@ t-distributions with which to estimate expectations}
 \item{seed}{a positive integer giving the random seed, provided for reproducibility.}
 }
 \description{
-solve_for_hs_propeff
+Takes as input a scale parameter, interpreted as c from in Equation (2.9),
+and returns m_eff / (K - 1),  where m_eff is also defined in Equation (2.9) and K is
+the number of categories.
 }
 \examples{
 solve_for_hs_propeff(scale = 0.1, n = 100, n_sim = 1e5)

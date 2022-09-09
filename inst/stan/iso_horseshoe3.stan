@@ -6,6 +6,7 @@ data {
   real<lower = 0> local_dof_stan; // dof of pi(lambda), = 1
   real<lower = 0> global_dof_stan; // dof of pi(tau), = 1
   real<lower = 0> alpha_scale_stan; // c, Equation (8)2
+  real<lower = 0> slab_precision_stan; // assumed to be 1 in the manuscript
   int<lower = 0,upper = 1> only_prior_stan;//if 1, ignore the model and data and generate from the prior only
 }
 transformed data {
@@ -35,13 +36,13 @@ transformed parameters {
   tau_sq = tau_base_sq * tau_scale_sq;
   lambda_sq = lambda_base_sq .* lambda_scale_sq;
   gamma_sq = gamma_base_sq .* gamma_scale_sq;
-  theta[1] = 1.0 / sqrt(1.0 + (1.0 / (gamma_sq[1] * tau_sq * lambda_sq[1])));
+  theta[1] = 1.0 / sqrt(slab_precision_stan + (1.0 / (gamma_sq[1] * tau_sq * lambda_sq[1])));
   if(n_groups_stan > 1) {
     for(i in 2:n_groups_stan) {
-      theta[i] = 1.0 / sqrt(1.0 + (1.0 / (alpha_scale_stan_sq * tau_sq * lambda_sq[i])));
+      theta[i] = 1.0 / sqrt(slab_precision_stan + (1.0 / (alpha_scale_stan_sq * tau_sq * lambda_sq[i])));
     }
   }
-  theta[n_groups_stan+1] = 1.0 / sqrt(1.0 + (1.0 / (gamma_sq[2] * tau_sq * lambda_sq[n_groups_stan+1])));
+  theta[n_groups_stan+1] = 1.0 / sqrt(slab_precision_stan + (1.0 / (gamma_sq[2] * tau_sq * lambda_sq[n_groups_stan+1])));
   alpha = (theta .* alpha_raw);
   normalized_alpha = alpha / sum(alpha);
   xi[1] = normalized_alpha[1];

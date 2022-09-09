@@ -112,8 +112,8 @@ bayesian_isotonic = function(data_grouped = NULL,
                               "horseshoe3",
                               "horseshoe4"))
 
-  if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan")))
-    stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, and alpha_scale_stan")
+  if(prior_type == "horseshoe" && !setequal(names(stan_args), c("local_dof_stan", "global_dof_stan", "alpha_scale_stan", "slab_precision_stan")))
+    stop("The horseshoe prior expects that stan_args must contain all and only named elements local_dof_stan, global_dof_stan, alpha_scale_stan, and slab_precision_stan")
 
   if(prior_type == "gamma" && !setequal(names(stan_args), c("alpha_shape_stan", "tiny_positive_stan")))
     stop("The gamma prior expects that stan_args must contain all and only named elements alpha_shape_stan and tiny_positive_stan")

@@ -42,11 +42,7 @@
 #'
 #' \insertRef{piironen2017hyperprior}{isotonicBayes}
 #'
-#' @examples
-#' solve_for_hs_scale(target_mean = 0.1, n = 100, n_sim = 1e5)
 #'
-#'
-#' @export
 #'
 #' @importFrom stats rt rnorm
 #' @importFrom Rdpack reprompt
@@ -65,7 +61,7 @@ solve_for_hs_scale = function(target_mean,
                               n_sim = 1e6,
                               seed = sample(.Machine$integer.max, 1)
 ) {
-  set.seed(1);
+  set.seed(seed);
   stopifnot(slab_precision >= 0 && n > 0 && sigma > 0);#Ensure proper bounds
   stopifnot(local_dof >= 0 && global_dof >= 0);#Ensure proper bounds
   do_local = (local_dof > 0);

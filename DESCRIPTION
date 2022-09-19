@@ -17,13 +17,15 @@ Depends:
     R (>= 3.4.0)
 Imports:
     dplyr (>= 1.0.0),
+    matrixStats,
     methods,
     Rcpp (>= 0.12.0),
     Rdpack,
     rlang,
     rstan (>= 2.18.1),
     stats,
-    tibble
+    tibble,
+    tidyr
 VignetteBuilder: knitr
 RdMacros: Rdpack
 LinkingTo: 

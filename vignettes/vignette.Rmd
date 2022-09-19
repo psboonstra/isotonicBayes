@@ -121,24 +121,20 @@ data_grouped <-
 
 Now we can fit the HSIPV-based model to these data. To do so, you must specify `prior_type = "horseshoe"` in the `bayesian_isotonic()` 
 function (this is currently the default value of `prior_type`). You specify the
-hyperparameters via the `stan_args` argument, which will be a named list. For the HSIPV prior, `stan_args` must contain the following components: `local_dof_stan` (the degrees of freedom for local shrinkage), `global_dof_stan` (degrees of freedom for the global shrinkage), and `alpha_scale_stan` (the $c$ parameter). If you want to have access to the individual draws from the posterior distribution, set `verbose = TRUE`. There are other arguments, but in most use cases you must provide values for `data_grouped`, `prior_type`, and `stan_args`.
+hyperparameters via the `stan_args` argument, which will be a named list. For the HSIPV prior, `stan_args` must contain the following components: `local_dof_stan` (the degrees of freedom for local shrinkage), `global_dof_stan` (degrees of freedom for the global shrinkage), `alpha_scale_stan` (the $c$ parameter), and `slab_precision_stan` (the regularization
+parameter). All parameters except for `alpha_scale_stan` were fixed at 1 in the 
+manuscript; we use $c = 0.0025$ for this example. If you want to have access to the 
+individual draws from the posterior distribution, set `verbose = TRUE`. There are other arguments, but in most use cases you must provide values for `data_grouped`, `prior_type`, 
+and `stan_args`. 
 
-There is a function called `solve_for_hs_scale()` that identifies the value
-of $c$ (`alpha_scale_stan`) solving equation (2.9) in the manuscript. For a selected value of $\tilde{m}_\mathrm{eff}$, set `target_mean` equal to $\tilde{m}_\mathrm{eff} / (K+1)$. Here we are targeting $\tilde{m}_\mathrm{eff}=0.5$, so `target_mean =` `r 0.5 / (n_breaks+1)`.  
 
 ```{r fit_hsipv, cache = TRUE}
 hs_stan_args = 
   list(
     local_dof_stan = 1, 
     global_dof_stan = 1,
-    alpha_scale_stan = solve_for_hs_scale(
-      target_mean = 0.5 / (n_breaks + 1), #target_mean * (K+1) = m_eff
-      local_dof = 1, 
-      global_dof = 1, 
-      slab_precision = 1,
-      n = (n - 2),
-      sigma = 2
-    )$scale)
+    alpha_scale_stan = 0.0025, 
+    slab_precision_stan = 1)
 
 hs_fit = 
   bayesian_isotonic(data_grouped = data_grouped,

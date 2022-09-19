@@ -3,7 +3,8 @@ test_that("horseshooe_good", {
                                   prior_type = "horseshoe",
                                   stan_args = list(global_dof_stan = 1,
                                                    local_dof_stan = 1,
-                                                   alpha_scale_stan = 1),
+                                                   alpha_scale_stan = 1,
+                                                   slab_precision_stan = 1),
                                   stan_seed = 1))
 })
 

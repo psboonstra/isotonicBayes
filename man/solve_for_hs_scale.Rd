@@ -55,11 +55,6 @@ Takes as input a proportion, interpreted as m_eff / (K - 1), where
 m_eff is defined in Equation (2.9) and K is the number of categories, and returns
 a scale parameter, c, that solves Equation (2.9).
 }
-\examples{
-solve_for_hs_scale(target_mean = 0.1, n = 100, n_sim = 1e5)
-
-
-}
 \references{
 \insertRef{boonstra2020b}{isotonicBayes}
 

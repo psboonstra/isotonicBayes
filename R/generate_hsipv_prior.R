@@ -46,7 +46,6 @@
 #' @export
 #'
 #' @importFrom stats rt rnorm
-#' @importFrom matrixStats rowCumsums
 #' @importFrom tidyr expand_grid
 #' @importFrom dplyr slice
 #'
@@ -57,7 +56,7 @@ generate_hsipv_prior = function(n_cats_seq,
                                 local_dof = 1,
                                 global_dof = 1,
                                 slab_precision = 1,
-                                n_draws,
+                                n_draws = 1e4,
                                 seed = sample(.Machine$integer.max, 1)
 ) {
   set.seed(seed);
@@ -73,7 +72,9 @@ generate_hsipv_prior = function(n_cats_seq,
 
   base_alpha = matrix(abs(rnorm(n_draws * (max_n_cats + 1))), nrow = n_draws);
   all_results =
-    expand_grid( n_cats = n_cats_seq, scale = scale_seq,exp_non_zero = NA)
+    expand_grid(n_cats = n_cats_seq,
+                scale = scale_seq,
+                exp_non_zero = NA)
 
   for(i in seq_len(nrow(all_results))) {
     curr_n_cats = slice(all_results, i) %>% pull(n_cats)
@@ -85,11 +86,11 @@ generate_hsipv_prior = function(n_cats_seq,
     curr_alpha = curr_prior_scales * curr_base_alpha
     curr_increments = curr_alpha[,1:curr_n_cats, drop = FALSE] / rowSums(curr_alpha);
 
-    all_results[i, 3] = mean(rowSums(curr_increments >= 1 / (curr_n_cats + 1)))
+    all_results[i, "exp_non_zero"] = mean(rowSums(curr_increments >= 1 / (curr_n_cats + 1)))
     rm(curr_n_cats, curr_scale, curr_base_alpha, foo,
        curr_prior_scales, curr_alpha, curr_increments)
   }
- all_results
+  all_results
 
 }
 

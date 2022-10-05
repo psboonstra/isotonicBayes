@@ -10,7 +10,7 @@ generate_hsipv_prior(
   local_dof = 1,
   global_dof = 1,
   slab_precision = 1,
-  n_draws,
+  n_draws = 10000,
   seed = sample(.Machine$integer.max, 1)
 )
 }

@@ -1,0 +1,395 @@
+---
+title: "Tutorial 1"
+author: "Philip S. Boonstra"
+date: "Nov 17, 2023"
+output: 
+  rmarkdown::html_vignette:
+    toc: yes
+vignette: >
+  %\VignetteIndexEntry{Tutorial 1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message = F}
+library(isotonicBayes)
+library(rstan);
+library(tidyverse);
+library(cir);
+library(glue);
+library(kableExtra);
+
+#Helpful to print warnings when they occur for debugging
+options(warn = 1);
+rstan_options(auto_write = TRUE);
+options(mc.cores = parallel::detectCores());
+```
+
+Run the code below to conduct the tutorial in Section 2.3 (Tutorial 1: Dose
+Escalation Example). If you haven't read the Introduction vignette, it is
+recommended you read that first. The last call in the script generates a latex
+table that is Table 1 in the manuscript.
+
+### Data and prior configuration
+
+First set up the data and the priors. 
+
+```{r, cache = TRUE}
+data_features = 
+  crossing(n_cats = 3,
+           n_per_cat = 3, 
+           prevalence_per_cat = c(quote(2/3 * curr_n_per_cat * (x > 2)))) 
+
+all_data_grouped <- 
+  hs_scales <- 
+  ga_shapes <- 
+  ga_lower_bounds <- 
+  vector("list")
+
+for(j in 1:nrow(data_features)) {
+  
+  curr_n_cats = slice(data_features, j) %>% pull(n_cats)
+  curr_n_per_cat = slice(data_features, j) %>% pull(n_per_cat)
+  curr_prevalence_per_cat = (slice(data_features, j) %>% pull(prevalence_per_cat))[[1]]
+  
+  hs_scales[[j]] =
+    c(horseshoe1 = 1/2,
+      horseshoe2 = 1/8,
+      horseshoe3 = 1/32,
+      horseshoe4 = 1/128);
+  
+  ga_shapes[[j]] =
+    c(gamma1 = 1/2,
+      gamma2 = 1/8,
+      gamma3 = 1/32,
+      gamma4 = 1/128);
+  
+  
+  ga_lower_bounds[[j]] = 
+    c(gamma1 = 0,
+      gamma2 = 0,
+      gamma3 = 0,
+      gamma4 = 0);
+  
+  
+  all_data_grouped[[j]] = 
+    tibble(dataset_label = j, 
+           n_cats = curr_n_cats, 
+           x = 1:curr_n_cats, 
+           n = curr_n_per_cat,
+           y = rep(round(eval(curr_prevalence_per_cat)), length = curr_n_cats)) %>%
+    arrange(x) %>%
+    mutate(x_cat = 1:n());
+  
+}
+rm(j, curr_n_cats, curr_n_per_cat);
+
+all_data_grouped <- bind_rows(all_data_grouped)
+
+
+hs_names = names(hs_scales[[1]])
+ga_names = names(ga_shapes[[1]])
+
+```
+
+### Fit the models
+
+
+```{r, cache = TRUE}
+
+set.seed(1);
+stan_seeds = sample.int(.Machine$integer.max, 1);
+
+do_these_priors = c(hs_names, ga_names);
+
+summarized_performance = 
+  crossing(
+    dataset_label = pull(all_data_grouped, dataset_label) %>% unique(),
+    priors = factor(do_these_priors) %>% fct_inorder(), 
+    #Either shape parameter (gamma prior) or scale parameter (horseshoe prior):
+    tuning_param_val = NA_real_,
+    #What is the left of the support truncated to? (0 means no truncation)
+    lower_truncation = NA_real_,
+    #how many divergent transitions were there?
+    number_divergences = NA_real_,
+    #what was the value of the gelman-rubin diagnostic?
+    rhat = NA_real_, 
+    #how many NaNs were sampled? (another symptom of poor mixing)
+    any_nan = NA_real_,
+    #time required to fit each method
+    run_time_secs = NA_real_,
+    #ratio of run time of fastest versus slowest chains
+    chain_relative_diff = NA_real_);
+
+alpha_nans = 
+  crossing(
+    all_data_grouped %>% select(dataset_label, x_cat),
+    priors = factor(do_these_priors) %>% fct_inorder(), 
+    value = NA_real_) %>%
+  pivot_wider(id_cols = c(dataset_label, priors),
+              names_from = x_cat, 
+              names_prefix = "alpha", 
+              values_from = value,
+              values_fill = NA_real_);
+
+xi_nans = 
+  crossing(
+    all_data_grouped %>% select(dataset_label, x_cat),
+    priors = factor(do_these_priors) %>% fct_inorder(), 
+    value = NA_real_) %>%
+  pivot_wider(id_cols = c(dataset_label, priors),
+              names_from = x_cat, 
+              names_prefix = "xi", 
+              values_from = value,
+              values_fill = NA_real_);
+
+
+summarized_models = 
+  crossing(
+    bind_rows(
+      all_data_grouped,
+      all_data_grouped %>% 
+        group_by(dataset_label) %>%
+        slice(n()) %>% 
+        mutate(x = x + 1, y= NA, x_cat = x_cat + 1)
+    ), 
+    priors = factor(do_these_priors) %>% fct_inorder(), 
+    tuning_param_val = NA_real_,
+    lower_truncation = NA_real_,
+    #
+    alphaj = NA_real_,
+    alphaj_lower = NA_real_,
+    alphaj_upper = NA_real_,
+    xij = NA_real_,
+    xij_lower = NA_real_,
+    xij_upper = NA_real_,
+    sum_alpha = NA_real_,
+    sum_alpha_lower = NA_real_,
+    sum_alpha_upper = NA_real_,) %>%
+  arrange(dataset_label, priors, x)
+
+
+for(j in pull(all_data_grouped, dataset_label) %>% unique()) {
+  
+  curr_n_cats = 
+    data_features %>% 
+    slice(j) %>%
+    pull(n_cats)
+  
+  curr_n_per_cat = 
+    data_features %>% 
+    slice(j) %>%
+    pull(n_per_cat)
+  
+  data_grouped = 
+    all_data_grouped %>%
+    filter(dataset_label == j) %>%
+    select(-dataset_label, -n_cats)
+  
+  curr_hs_scale = hs_scales[[j]]
+  curr_ga_shape = ga_shapes[[j]]
+  curr_ga_lower_bound = ga_lower_bounds[[j]]
+  
+  for(curr_prior in do_these_priors) {
+    
+    cat("\n######################################\n");
+    cat("#", curr_prior, "prior :: dataset =", j,  "\n");
+    cat("######################################\n\n");
+    
+    
+    if(curr_prior %in% hs_names) {
+      
+      # horseshoe
+      stan_args = 
+        list(local_dof_stan = 1, 
+             global_dof_stan = 1,
+             alpha_scale_stan = curr_hs_scale[[curr_prior]], 
+             slab_precision_stan = 1);
+      
+      prior_type = "horseshoe"
+    } else {
+      
+      # gamma
+      stan_args = 
+        list(
+          alpha_shape_stan = curr_ga_shape[[curr_prior]],
+          tiny_positive_stan = curr_ga_lower_bound[[curr_prior]]);
+      
+      prior_type = "gamma"        
+    }
+    
+    
+    curr_row_performance = 
+      with(summarized_performance, 
+           which(dataset_label == j &
+                   priors == curr_prior));
+    
+    curr_row_nans = 
+      with(alpha_nans, 
+           which(dataset_label == j &
+                   priors == curr_prior));
+    
+    stopifnot(length(curr_row_performance) == 1)
+    
+    curr_rows_models <- 
+      with(summarized_models,
+           which(dataset_label == j &
+                   priors == curr_prior));
+    
+    if(curr_prior %in% hs_names) {
+      
+      summarized_performance[curr_row_performance, "tuning_param_val"] = 
+        curr_hs_scale[[curr_prior]];
+      summarized_performance[curr_row_performance, "lower_truncation"] = 
+        0;
+      
+      summarized_models[curr_rows_models, "tuning_param_val"] = 
+        curr_hs_scale[[curr_prior]];
+      summarized_models[curr_rows_models, "lower_truncation"] = 
+        0;
+    } else {
+      summarized_performance[curr_row_performance, "tuning_param_val"] = 
+        curr_ga_shape[[curr_prior]];
+      summarized_performance[curr_row_performance, "lower_truncation"] = 
+        curr_ga_lower_bound[[curr_prior]];
+      
+      summarized_models[curr_rows_models, "tuning_param_val"] = 
+        curr_ga_shape[[curr_prior]];
+      summarized_models[curr_rows_models, "lower_truncation"] = 
+        curr_ga_lower_bound[[curr_prior]];
+    }
+    
+    # ++ Fit Stan model ----
+    curr_fit = bayesian_isotonic(data_grouped = data_grouped,
+                                 prior_type = prior_type,
+                                 stan_args = stan_args, 
+                                 mc_warmup = 2500, 
+                                 mc_samps = 2500, 
+                                 mc_chains = 2, 
+                                 verbose = T, 
+                                 stan_seed = stan_seeds
+    );
+    
+    
+    # ++ Model performance ----
+    
+    summarized_performance[curr_row_performance, "number_divergences"] =
+      curr_fit$number_divergences;
+    summarized_performance[curr_row_performance, "rhat"] = 
+      curr_fit$max_rhat;
+    summarized_performance[curr_row_performance, "any_nan"] =
+      curr_fit$any_nan;
+    summarized_performance[curr_row_performance, "run_time_secs"] = 
+      curr_fit$total_run_time_secs;
+    summarized_performance[curr_row_performance, "chain_relative_diff"] = 
+      min(curr_fit$chain_run_times_secs) / max(curr_fit$chain_run_times_secs);
+    
+    alpha_nans <- 
+      alpha_nans %>%
+      mutate_at(vars(paste0("alpha",1:(curr_n_cats))),
+                ~ ifelse(dataset_label == j & 
+                           priors == curr_prior, 
+                         curr_fit$alpha_number_nan[1:(curr_n_cats)], .)) 
+    
+    xi_nans <- 
+      xi_nans %>%
+      mutate_at(vars(paste0("xi",1:(curr_n_cats))),
+                ~ ifelse(dataset_label == j & 
+                           priors == curr_prior,
+                         curr_fit$xi_number_nan[1:(curr_n_cats)], .)) 
+    
+    summarized_models[curr_rows_models, "xij"] = 
+      c(apply(curr_fit$all_draws$xi, 2, median), 1)
+    summarized_models[curr_rows_models, "xij_lower"] = 
+      c(apply(curr_fit$all_draws$xi, 2, quantile, p = 0.025), 1)
+    summarized_models[curr_rows_models, "xij_upper"] = 
+      c(apply(curr_fit$all_draws$xi, 2, quantile, p = 0.975), 1)
+    
+    summarized_models[curr_rows_models, "alphaj"] = 
+      apply(curr_fit$all_draws$alpha, 2, median)
+    summarized_models[curr_rows_models, "alphaj_lower"] = 
+      apply(curr_fit$all_draws$alpha, 2, quantile, p = 0.025)
+    summarized_models[curr_rows_models, "alphaj_upper"] = 
+      apply(curr_fit$all_draws$alpha, 2, quantile, p = 0.975)
+    
+    
+    summarized_models[curr_rows_models, "sum_alpha"] = 
+      median(rowSums(curr_fit$all_draws$alpha))
+    summarized_models[curr_rows_models, "sum_alpha_lower"] = 
+      quantile(rowSums(curr_fit$all_draws$alpha), p = 0.025)
+    summarized_models[curr_rows_models, "sum_alpha_upper"] = 
+      quantile(rowSums(curr_fit$all_draws$alpha), p = 0.975)
+    
+  } 
+  rm(stan_args, curr_prior);
+  rm(curr_row_performance, curr_row_nans, curr_rows_models);
+  
+  
+}
+rm(curr_ga_shape, curr_hs_scale, curr_ga_lower_bound);
+rm(data_grouped, curr_n_cats, curr_n_per_cat)
+```
+
+## Summarize the results
+
+```{r}
+summarized_models <-
+  summarized_models %>%
+  mutate(
+    dataset_pretty_label = 
+      glue("list(K == {n_cats}, n[j] == {n})") %>% 
+      as.character() %>%
+      factor() %>%
+      fct_inorder(),
+    tuning_param_val_pretty = 
+      case_when(
+        str_detect(priors, "gamma") ~ 
+          glue("$1/{1 / tuning_param_val}$"),
+        str_detect(priors, "horseshoe") ~ 
+          glue("$1/{1 / tuning_param_val}$"),
+      ),
+    alphaj_pretty = 
+      formatC(alphaj, format = 'g', digits = 2),
+    sum_alpha_pretty = 
+      formatC(sum_alpha, format = 'g', digits = 2),
+    xij_pretty = 
+      formatC(xij, format = 'g', digits = 2))
+
+full_join(
+  summarized_models %>% 
+    select(priors, tuning_param_val, tuning_param_val_pretty, x_cat, alphaj_pretty) %>%
+    pivot_wider(names_from = x_cat, 
+                names_prefix = "alpha",
+                values_from = alphaj_pretty),
+  summarized_models %>% 
+    select(priors, tuning_param_val, tuning_param_val_pretty, x_cat, xij_pretty) %>%
+    pivot_wider(names_from = x_cat, 
+                names_prefix = "xi",
+                values_from = xij_pretty)) %>%
+  mutate(priors = 
+           case_when(
+             str_detect(priors, "horseshoe") ~ glue("HSIPV({tuning_param_val_pretty})"),
+             str_detect(priors, "gamma") ~ glue("GAIPV({tuning_param_val_pretty})"),
+           ) %>%
+           fct_inorder()) %>%
+  arrange(priors, desc(tuning_param_val)) %>%
+  select(-tuning_param_val,-tuning_param_val_pretty,-xi4) %>%
+  rename(Prior = priors, 
+         `$\\alpha_1$` = alpha1,
+         `$\\alpha_2$` = alpha2,
+         `$\\alpha_3$` = alpha3,
+         `$\\alpha_4$` = alpha4,
+         `$\\xi_1$` = xi1,
+         `$\\xi_2$` = xi2,
+         `$\\xi_3$` = xi3) %>%
+  knitr::kable()
+
+```
+
